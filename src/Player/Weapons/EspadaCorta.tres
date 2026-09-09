@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_weapon")
 DisplayName = "Espada corta"
-Damage = 18.0
+Damage = 12.0
 Range = 1.8
 SpeedScale = 0.8
-HeavyDamageMultiplier = 1.8
+HeavyDamageMultiplier = 2.5

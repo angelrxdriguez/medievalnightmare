@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_weapon")
 DisplayName = "Maza"
-Damage = 26.0
+Damage = 18.0
 Range = 1.6
 SpeedScale = 1.0
-HeavyDamageMultiplier = 1.8
+HeavyDamageMultiplier = 2.5

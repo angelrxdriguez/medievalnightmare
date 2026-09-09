@@ -13,16 +13,16 @@ namespace MedievalNightmare.Enemies;
 public partial class SkeletonAI : CharacterBody3D
 {
 	[ExportGroup("Movimiento")]
-	[Export] public float MoveSpeed { get; set; } = 2.2f;
+	[Export] public float MoveSpeed { get; set; } = 3.0f;
 	[Export] public float TurnSpeed { get; set; } = 8.0f;
-	[Export] public float DetectionRange { get; set; } = 6.0f;
+	[Export] public float DetectionRange { get; set; } = 9.0f;
 
 	[ExportGroup("Ataque")]
-	[Export] public float Damage { get; set; } = 15.0f;
+	[Export] public float Damage { get; set; } = 12.0f;
 	[Export] public float AttackRange { get; set; } = 1.7f;
-	[Export] public float Windup { get; set; } = 0.80f;
-	[Export] public float Active { get; set; } = 0.20f;
-	[Export] public float Recovery { get; set; } = 0.90f;
+	[Export] public float Windup { get; set; } = 0.45f;
+	[Export] public float Active { get; set; } = 0.15f;
+	[Export] public float Recovery { get; set; } = 0.50f;
 
 	private Node3D _visual;
 	private MeleeHitbox _hitbox;

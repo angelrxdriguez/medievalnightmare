@@ -10,16 +10,17 @@ namespace MedievalNightmare.Player;
 /// El CharacterBody3D nunca rota: se rota <c>Visual</c> hacia la dirección de
 /// avance y <c>CameraArm</c> con el ratón, para que sean independientes.
 ///
-/// El combate no gasta ningún recurso: el compromiso lo da la duración de las
-/// fases. Una vez empieza un golpe no se puede cancelar ni mover el personaje.
+/// El combate no gasta ningún recurso. El golpe ligero es rápido, encadenable
+/// y permite moverte a velocidad reducida. El pesado te clava en el sitio
+/// durante casi dos segundos: ahí es donde los enemigos te castigan.
 /// </summary>
 public partial class PlayerController : CharacterBody3D
 {
 	[ExportGroup("Movimiento")]
-	[Export] public float WalkSpeed { get; set; } = 4.0f;
-	[Export] public float Acceleration { get; set; } = 30.0f;
-	[Export] public float Deceleration { get; set; } = 40.0f;
-	[Export] public float TurnSpeed { get; set; } = 14.0f;
+	[Export] public float WalkSpeed { get; set; } = 4.5f;
+	[Export] public float Acceleration { get; set; } = 34.0f;
+	[Export] public float Deceleration { get; set; } = 44.0f;
+	[Export] public float TurnSpeed { get; set; } = 16.0f;
 
 	[ExportGroup("Salto")]
 	[Export] public float JumpHeight { get; set; } = 1.0f;
@@ -35,15 +36,21 @@ public partial class PlayerController : CharacterBody3D
 	[ExportGroup("Combate")]
 	[Export] public Godot.Collections.Array<WeaponData> Weapons { get; set; } = new();
 
+	/// <summary>Margen para encadenar: pulsar durante la recuperación no se pierde.</summary>
+	[Export] public float AttackBufferTime { get; set; } = 0.25f;
+
 	[ExportSubgroup("Golpe ligero")]
-	[Export] public float LightWindup { get; set; } = 0.35f;
-	[Export] public float LightActive { get; set; } = 0.15f;
-	[Export] public float LightRecovery { get; set; } = 0.45f;
+	[Export] public float LightWindup { get; set; } = 0.12f;
+	[Export] public float LightActive { get; set; } = 0.10f;
+	[Export] public float LightRecovery { get; set; } = 0.22f;
+
+	/// <summary>Fracción de la velocidad de marcha que conservas golpeando ligero.</summary>
+	[Export] public float LightMoveScale { get; set; } = 0.55f;
 
 	[ExportSubgroup("Golpe pesado")]
-	[Export] public float HeavyWindup { get; set; } = 0.70f;
+	[Export] public float HeavyWindup { get; set; } = 0.75f;
 	[Export] public float HeavyActive { get; set; } = 0.20f;
-	[Export] public float HeavyRecovery { get; set; } = 0.80f;
+	[Export] public float HeavyRecovery { get; set; } = 0.70f;
 
 	[ExportSubgroup("Muerte")]
 	[Export] public float RestartDelay { get; set; } = 2.0f;
@@ -66,6 +73,8 @@ public partial class PlayerController : CharacterBody3D
 	private bool _heavySwing;
 	private WeaponData _swingWeapon;
 	private int _weaponIndex;
+	private float _attackBuffer;
+	private bool _bufferedHeavy;
 	private bool _dead;
 
 	public WeaponData CurrentWeapon =>
@@ -116,9 +125,6 @@ public partial class PlayerController : CharacterBody3D
 
 		UpdateSwing(dt);
 
-		bool canMove = !_dead && _phase == CombatPhase.Idle;
-		bool canTurn = !_dead && (_phase == CombatPhase.Idle || _phase == CombatPhase.Windup);
-
 		Vector3 velocity = Velocity;
 
 		if (IsOnFloor())
@@ -132,7 +138,7 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		_jumpBufferTimer -= dt;
-		if (canMove && Input.IsActionJustPressed("jump"))
+		if (!_dead && Input.IsActionJustPressed("jump"))
 		{
 			_jumpBufferTimer = JumpBufferTime;
 		}
@@ -145,7 +151,7 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		Vector3 direction = _dead ? Vector3.Zero : GetMoveDirection();
-		Vector3 target = canMove ? direction * WalkSpeed : Vector3.Zero;
+		Vector3 target = direction * WalkSpeed * MoveScale();
 		Vector3 horizontal = new Vector3(velocity.X, 0.0f, velocity.Z);
 		float rate = target.IsZeroApprox() ? Deceleration : Acceleration;
 		horizontal = horizontal.MoveToward(target, rate * dt);
@@ -155,10 +161,45 @@ public partial class PlayerController : CharacterBody3D
 		Velocity = velocity;
 		MoveAndSlide();
 
-		if (canTurn)
+		if (CanTurn())
 		{
 			FaceMoveDirection(direction, dt);
 		}
+	}
+
+	/// <summary>
+	/// El ligero apenas te frena; el pesado te clava en el sitio. Es la única
+	/// diferencia mecánica que hace que elegir el pesado sea una apuesta.
+	/// </summary>
+	private float MoveScale()
+	{
+		if (_dead)
+		{
+			return 0.0f;
+		}
+
+		if (_phase == CombatPhase.Idle)
+		{
+			return 1.0f;
+		}
+
+		return _heavySwing ? 0.0f : LightMoveScale;
+	}
+
+	private bool CanTurn()
+	{
+		if (_dead)
+		{
+			return false;
+		}
+
+		if (_heavySwing && _phase != CombatPhase.Idle)
+		{
+			// Solo puedes apuntar el pesado durante la anticipación.
+			return _phase == CombatPhase.Windup;
+		}
+
+		return true;
 	}
 
 	/// <summary>Convierte el input en una dirección de mundo relativa a la cámara.</summary>
@@ -199,15 +240,24 @@ public partial class PlayerController : CharacterBody3D
 		// efecto en el golpe siguiente, nunca en el que ya está en curso.
 		SelectWeaponFromInput();
 
+		_attackBuffer -= dt;
+		if (Input.IsActionJustPressed("attack_light"))
+		{
+			_attackBuffer = AttackBufferTime;
+			_bufferedHeavy = false;
+		}
+		else if (Input.IsActionJustPressed("attack_heavy"))
+		{
+			_attackBuffer = AttackBufferTime;
+			_bufferedHeavy = true;
+		}
+
 		if (_phase == CombatPhase.Idle)
 		{
-			if (Input.IsActionJustPressed("attack_light"))
+			if (_attackBuffer > 0.0f)
 			{
-				StartSwing(heavy: false);
-			}
-			else if (Input.IsActionJustPressed("attack_heavy"))
-			{
-				StartSwing(heavy: true);
+				_attackBuffer = 0.0f;
+				StartSwing(_bufferedHeavy);
 			}
 
 			return;

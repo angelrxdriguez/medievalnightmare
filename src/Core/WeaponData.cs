@@ -16,5 +16,5 @@ public partial class WeaponData : Resource
 	/// <summary>Multiplica los tiempos base. Menor que 1 es más rápida, mayor es más lenta.</summary>
 	[Export] public float SpeedScale { get; set; } = 1.0f;
 
-	[Export] public float HeavyDamageMultiplier { get; set; } = 1.8f;
+	[Export] public float HeavyDamageMultiplier { get; set; } = 2.5f;
 }

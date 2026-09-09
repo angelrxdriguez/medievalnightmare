@@ -19,8 +19,9 @@ Tres niveles, un jefe final, 2-3 horas.
 
 Tres. Si una decisión no sirve a uno de estos tres, no entra.
 
-1. **Cada golpe pesa.** El combate es lento y letal. Se gana leyendo distancia
-   y tiempo, no con reflejos ni con combos.
+1. **El riesgo lo eliges tú.** Los golpes rápidos son seguros y hacen poco.
+   El pesado te clava en el sitio casi dos segundos y mata de uno. Entre esas
+   dos opciones está todo el combate.
 2. **Salir vivo vale más que seguir.** La tensión no está en el combate, está
    en la decisión de avanzar una sala más o extraer con lo que ya tienes.
 3. **La oscuridad es una mecánica.** La niebla y la falta de luz no decoran:
@@ -28,12 +29,16 @@ Tres. Si una decisión no sirve a uno de estos tres, no entra.
 
 ## 3. Referencias
 
-- **King's Field IV** — el peso y la lentitud del combate. La referencia principal.
+- **Blade of Darkness (2001)** — la época, la estética y el cuerpo a cuerpo
+  en tercera persona. La referencia principal.
+- **Dark Messiah of Might & Magic** — el ritmo: ágil, pero con golpes cargados
+  que te dejan vendido mientras salen.
 - **Dark and Darker** — la decisión de extraer.
-- **Hexen** — la estética y la paleta.
+- **Hexen** — la paleta.
 
-**En qué NO se parece:** no es un Souls (no hay estamina, ni parry, ni
-esquiva con invulnerabilidad), no tiene PvP, no es mundo abierto.
+**En qué NO se parece:** no es un Souls (no hay estamina, ni parry, ni esquiva
+con invulnerabilidad), no es un King's Field (se probó el combate lento en M1
+y no funcionaba), no tiene PvP, no es mundo abierto.
 
 ## 4. Bucle de juego
 
@@ -52,21 +57,24 @@ equipo**.
 
 > Los números son valores de partida para ajustar jugando, no dogma.
 
-**Sin barra de estamina.** El compromiso lo da la duración de la animación:
-una vez empiezas un ataque, lo terminas. No hay cancelación.
+**Sin barra de estamina.** Ningún ataque gasta recurso. Lo que te limita es
+que ningún golpe se puede cancelar una vez empezado.
 
-| Acción | Anticipación | Activo | Recuperación | Total |
-|---|---|---|---|---|
-| Ataque ligero | 0,35 s | 0,15 s | 0,45 s | 0,95 s |
-| Ataque pesado | 0,70 s | 0,20 s | 0,80 s | 1,70 s |
-| Bloqueo (subir) | 0,20 s | — | 0,20 s | — |
-| Paso lateral | — | 0,40 s | — | 0,40 s |
+| Acción | Anticipación | Activo | Recuperación | Total | Movimiento |
+|---|---|---|---|---|---|
+| Ataque ligero | 0,12 s | 0,10 s | 0,22 s | 0,44 s | 55 % |
+| Ataque pesado | 0,75 s | 0,20 s | 0,70 s | 1,65 s | 0 % |
 
-- **Bloqueo:** reduce el daño recibido un 80 %. No hay parry.
-- **Paso lateral:** desplazamiento corto. **No da invulnerabilidad.** Esquivar
-  es cuestión de estar fuera del alcance, no de acertar el fotograma.
+- Los tiempos se multiplican por la velocidad del arma (0,8 a 1,35).
+- **El ligero es la base.** Rápido, encadenable con 0,25 s de margen de
+  entrada, y te deja moverte al 55 % de la velocidad de marcha.
+- **El pesado es la apuesta.** Hace 2,5× de daño y te deja clavado en el sitio
+  1,65 s. Solo puedes girar durante la anticipación. Ahí es donde te pegan.
 - **Fijado de objetivo:** blando. La cámara sigue al enemigo; tú te mueves
-  libre. Se puede quitar en cualquier momento.
+  libre. Se puede quitar en cualquier momento. *Sin implementar.*
+- **Bloqueo:** reduce el daño recibido un 80 %. No hay parry. *Sin implementar.*
+- **Paso lateral:** desplazamiento corto de 0,4 s. **No da invulnerabilidad.**
+  *Sin implementar.*
 - **Vida del jugador:** 100. No se regenera.
 - **Pociones:** curan 40. Máximo 3 por incursión, ocupan hueco de inventario.
 
@@ -88,11 +96,14 @@ hecho mecánica.
 **Armas (3).** Comparten el mismo esqueleto de animación; cambian velocidad,
 alcance y daño. Es lo que las hace baratas de producir.
 
-| Arma | Daño | Alcance | Velocidad |
-|---|---|---|---|
-| Espada corta | 18 | 1,8 m | Rápida |
-| Maza | 26 | 1,6 m | Media |
-| Mandoble | 45 | 2,6 m | Lenta |
+| Arma | Daño | Alcance | Velocidad | Golpes para matar un esqueleto |
+|---|---|---|---|---|
+| Espada corta | 12 | 1,8 m | 0,8 | 4 ligeros (1,5 s) o 2 pesados |
+| Maza | 18 | 1,6 m | 1,0 | 3 ligeros (1,2 s) o 1 pesado |
+| Mandoble | 30 | 2,6 m | 1,35 | 2 ligeros (0,9 s) o 1 pesado |
+
+Las tres matan en un tiempo parecido: se diferencian por alcance y por ritmo,
+no por ser mejores o peores.
 
 **Amuletos (3).** Con enfriamiento, sin maná.
 
@@ -106,12 +117,12 @@ alcance y daño. Es lo que las hace baratas de producir.
 
 Tres tipos y un jefe. Cada uno enseña una cosa distinta.
 
-**Esqueleto** — el básico. Ataque único con anticipación larga y clarísima.
-Enseña a leer la telegrafía. Vida 40, daño 15.
+**Esqueleto** — el básico. Ataque único con 0,45 s de anticipación visible.
+Enseña a leer la telegrafía. Vida 40, daño 12, velocidad 3 m/s.
 
 **Bruja** — a distancia. Lanza desde lejos y retrocede si te acercas. Te obliga
 a cruzar espacio abierto bajo presión, que es cuando aparecen los esqueletos.
-Vida 30, daño 20.
+Vida 30, daño 18.
 
 **Ogro** — lento y devastador. Dos golpes te matan. Enseña a usar el espacio
 y a no ser codicioso. Vida 180, daño 55.
@@ -135,6 +146,11 @@ sin vendedores, sin monedas.
 
 Cada nivel tiene **dos salas de extracción**: una a mitad y otra antes del
 tramo final.
+
+**Regla de densidad.** Las salas de combate no bajan de 20 × 20 m y los
+enemigos se colocan a **9 m o más entre sí**, que es su alcance de detección.
+Así te los encuentras de uno en uno o de dos en dos, nunca en bloque. Un
+enemigo rápido en un pasillo estrecho no es difícil, es injusto.
 
 ## 9. Muerte y extracción
 
@@ -186,7 +202,8 @@ Si el juego no es divertido en cajas grises, no lo va a arreglar una textura.
 
 | Riesgo | Cuándo se ve | Qué hacemos |
 |---|---|---|
-| El combate lento resulta aburrido, no tenso | M1 | Se replantea en M1, antes de construir 3 enemigos encima |
+| ~~El combate lento resulta aburrido~~ | M1 | **Ocurrió.** Se cambió a ligero rápido + pesado comprometido |
+| Sin bloqueo ni esquiva, pelear contra 2+ enemigos es una carrera de daño | M2 | Implementar el paso lateral, que ya está definido |
 | El ogro es el único modelo no humanoide y Mixamo no vale | M4 | Se sustituye por un humanoide grande y deforme |
 | El hub y el alijo se comen el tiempo | M3 | Se cae a: extraer = guardar partida, sin hub |
 
