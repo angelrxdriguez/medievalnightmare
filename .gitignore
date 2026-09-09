@@ -1,0 +1,22 @@
+# --- Godot 4+ ---
+.godot/
+/android/
+
+# Salidas de exportación
+/build/
+/export/
+
+# --- .NET / C# ---
+bin/
+obj/
+.mono/
+*.user
+*.userprefs
+*.sln.DotSettings.user
+
+# --- Rider / JetBrains ---
+.idea/
+
+# --- Windows ---
+Thumbs.db
+desktop.ini
