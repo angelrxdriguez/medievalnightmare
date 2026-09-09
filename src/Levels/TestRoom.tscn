@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Material" path="res://assets/materials/greybox/GreyboxGrid.tres" id="1_grid"]
 [ext_resource type="PackedScene" path="res://src/Player/Player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://src/Enemies/Skeleton/Skeleton.tscn" id="3_skeleton"]
 
 [sub_resource type="Environment" id="Environment_room"]
 background_mode = 1
@@ -87,3 +88,12 @@ size = Vector3(0.5, 1.8, 0.3)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 4)
+
+[node name="Skeleton1" parent="." instance=ExtResource("3_skeleton")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -6.5)
+
+[node name="Skeleton2" parent="." instance=ExtResource("3_skeleton")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0.05, -6.5)
+
+[node name="Skeleton3" parent="." instance=ExtResource("3_skeleton")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0.05, -6.5)

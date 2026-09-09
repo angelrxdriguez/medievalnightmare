@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/Core/WeaponData.cs" id="1_weapon"]
+
+[resource]
+script = ExtResource("1_weapon")
+DisplayName = "Espada corta"
+Damage = 18.0
+Range = 1.8
+SpeedScale = 0.8
+HeavyDamageMultiplier = 1.8

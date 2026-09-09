@@ -1,11 +1,17 @@
 using Godot;
+using MedievalNightmare.Core;
 
 namespace MedievalNightmare.Player;
 
 /// <summary>
-/// Movimiento en tercera persona relativo a la cámara, con gravedad y salto.
+/// Movimiento en tercera persona relativo a la cámara, con gravedad, salto y
+/// ataque cuerpo a cuerpo.
+///
 /// El CharacterBody3D nunca rota: se rota <c>Visual</c> hacia la dirección de
 /// avance y <c>CameraArm</c> con el ratón, para que sean independientes.
+///
+/// El combate no gasta ningún recurso: el compromiso lo da la duración de las
+/// fases. Una vez empieza un golpe no se puede cancelar ni mover el personaje.
 /// </summary>
 public partial class PlayerController : CharacterBody3D
 {
@@ -16,12 +22,9 @@ public partial class PlayerController : CharacterBody3D
 	[Export] public float TurnSpeed { get; set; } = 14.0f;
 
 	[ExportGroup("Salto")]
-	/// <summary>Altura del salto en metros. El impulso se deriva de aquí y de la gravedad.</summary>
 	[Export] public float JumpHeight { get; set; } = 1.0f;
 	[Export] public float GravityScale { get; set; } = 2.0f;
-	/// <summary>Margen para saltar justo después de salirse de un borde.</summary>
 	[Export] public float CoyoteTime { get; set; } = 0.12f;
-	/// <summary>Margen para pulsar salto justo antes de tocar el suelo.</summary>
 	[Export] public float JumpBufferTime { get; set; } = 0.12f;
 
 	[ExportGroup("Cámara")]
@@ -29,8 +32,27 @@ public partial class PlayerController : CharacterBody3D
 	[Export] public float MinPitchDegrees { get; set; } = -60.0f;
 	[Export] public float MaxPitchDegrees { get; set; } = 40.0f;
 
+	[ExportGroup("Combate")]
+	[Export] public Godot.Collections.Array<WeaponData> Weapons { get; set; } = new();
+
+	[ExportSubgroup("Golpe ligero")]
+	[Export] public float LightWindup { get; set; } = 0.35f;
+	[Export] public float LightActive { get; set; } = 0.15f;
+	[Export] public float LightRecovery { get; set; } = 0.45f;
+
+	[ExportSubgroup("Golpe pesado")]
+	[Export] public float HeavyWindup { get; set; } = 0.70f;
+	[Export] public float HeavyActive { get; set; } = 0.20f;
+	[Export] public float HeavyRecovery { get; set; } = 0.80f;
+
+	[ExportSubgroup("Muerte")]
+	[Export] public float RestartDelay { get; set; } = 2.0f;
+
 	private Node3D _visual;
 	private SpringArm3D _cameraArm;
+	private MeleeHitbox _hitbox;
+	private TelegraphMarker _marker;
+	private Health _health;
 
 	private float _gravity;
 	private float _jumpVelocity;
@@ -39,10 +61,24 @@ public partial class PlayerController : CharacterBody3D
 	private float _coyoteTimer;
 	private float _jumpBufferTimer;
 
+	private CombatPhase _phase = CombatPhase.Idle;
+	private float _phaseTimer;
+	private bool _heavySwing;
+	private WeaponData _swingWeapon;
+	private int _weaponIndex;
+	private bool _dead;
+
+	public WeaponData CurrentWeapon =>
+		Weapons.Count > 0 ? Weapons[Mathf.Clamp(_weaponIndex, 0, Weapons.Count - 1)] : null;
+
 	public override void _Ready()
 	{
 		_visual = GetNode<Node3D>("Visual");
 		_cameraArm = GetNode<SpringArm3D>("CameraArm");
+		_hitbox = GetNode<MeleeHitbox>("Visual/AttackHitbox");
+		_marker = GetNodeOrNull<TelegraphMarker>("Visual/Telegraph");
+		_health = GetNode<Health>("Health");
+		_health.Died += OnDied;
 
 		_gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle() * GravityScale;
 		_jumpVelocity = Mathf.Sqrt(2.0f * _gravity * JumpHeight);
@@ -77,6 +113,12 @@ public partial class PlayerController : CharacterBody3D
 	public override void _PhysicsProcess(double delta)
 	{
 		float dt = (float)delta;
+
+		UpdateSwing(dt);
+
+		bool canMove = !_dead && _phase == CombatPhase.Idle;
+		bool canTurn = !_dead && (_phase == CombatPhase.Idle || _phase == CombatPhase.Windup);
+
 		Vector3 velocity = Velocity;
 
 		if (IsOnFloor())
@@ -90,7 +132,7 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		_jumpBufferTimer -= dt;
-		if (Input.IsActionJustPressed("jump"))
+		if (canMove && Input.IsActionJustPressed("jump"))
 		{
 			_jumpBufferTimer = JumpBufferTime;
 		}
@@ -102,17 +144,21 @@ public partial class PlayerController : CharacterBody3D
 			_coyoteTimer = 0.0f;
 		}
 
-		Vector3 direction = GetMoveDirection();
+		Vector3 direction = _dead ? Vector3.Zero : GetMoveDirection();
+		Vector3 target = canMove ? direction * WalkSpeed : Vector3.Zero;
 		Vector3 horizontal = new Vector3(velocity.X, 0.0f, velocity.Z);
-		float rate = direction.IsZeroApprox() ? Deceleration : Acceleration;
-		horizontal = horizontal.MoveToward(direction * WalkSpeed, rate * dt);
+		float rate = target.IsZeroApprox() ? Deceleration : Acceleration;
+		horizontal = horizontal.MoveToward(target, rate * dt);
 
 		velocity.X = horizontal.X;
 		velocity.Z = horizontal.Z;
 		Velocity = velocity;
 		MoveAndSlide();
 
-		FaceMoveDirection(direction, dt);
+		if (canTurn)
+		{
+			FaceMoveDirection(direction, dt);
+		}
 	}
 
 	/// <summary>Convierte el input en una dirección de mundo relativa a la cámara.</summary>
@@ -140,5 +186,114 @@ public partial class PlayerController : CharacterBody3D
 		Vector3 rotation = _visual.Rotation;
 		rotation.Y = Mathf.LerpAngle(rotation.Y, targetYaw, weight);
 		_visual.Rotation = rotation;
+	}
+
+	private void UpdateSwing(float dt)
+	{
+		if (_dead)
+		{
+			return;
+		}
+
+		// Fuera del if: cambiar de arma a mitad de golpe no debe perderse. Surte
+		// efecto en el golpe siguiente, nunca en el que ya está en curso.
+		SelectWeaponFromInput();
+
+		if (_phase == CombatPhase.Idle)
+		{
+			if (Input.IsActionJustPressed("attack_light"))
+			{
+				StartSwing(heavy: false);
+			}
+			else if (Input.IsActionJustPressed("attack_heavy"))
+			{
+				StartSwing(heavy: true);
+			}
+
+			return;
+		}
+
+		_phaseTimer -= dt;
+		if (_phaseTimer > 0.0f)
+		{
+			return;
+		}
+
+		switch (_phase)
+		{
+			case CombatPhase.Windup:
+				EnterPhase(CombatPhase.Active, _heavySwing ? HeavyActive : LightActive);
+				_hitbox.Open(SwingDamage(), _swingWeapon.Range);
+				break;
+
+			case CombatPhase.Active:
+				_hitbox.Close();
+				EnterPhase(CombatPhase.Recovery, _heavySwing ? HeavyRecovery : LightRecovery);
+				break;
+
+			case CombatPhase.Recovery:
+				EnterPhase(CombatPhase.Idle, 0.0f);
+				break;
+		}
+	}
+
+	private void SelectWeaponFromInput()
+	{
+		if (Input.IsActionJustPressed("weapon_1"))
+		{
+			_weaponIndex = 0;
+		}
+		else if (Input.IsActionJustPressed("weapon_2"))
+		{
+			_weaponIndex = 1;
+		}
+		else if (Input.IsActionJustPressed("weapon_3"))
+		{
+			_weaponIndex = 2;
+		}
+	}
+
+	private void StartSwing(bool heavy)
+	{
+		if (CurrentWeapon == null)
+		{
+			return;
+		}
+
+		_swingWeapon = CurrentWeapon;
+		_heavySwing = heavy;
+		EnterPhase(CombatPhase.Windup, heavy ? HeavyWindup : LightWindup);
+	}
+
+	/// <summary>
+	/// Los tiempos base se escalan con el arma: el mandoble es literalmente más
+	/// lento. Se usa el arma capturada al empezar el golpe, no la actual, para
+	/// que cambiar de arma a media animación no altere el golpe en curso.
+	/// </summary>
+	private void EnterPhase(CombatPhase phase, float duration)
+	{
+		_phase = phase;
+		_phaseTimer = duration * (_swingWeapon?.SpeedScale ?? 1.0f);
+		_marker?.SetPhase(phase);
+	}
+
+	private float SwingDamage()
+	{
+		return _heavySwing
+			? _swingWeapon.Damage * _swingWeapon.HeavyDamageMultiplier
+			: _swingWeapon.Damage;
+	}
+
+	private void OnDied()
+	{
+		_dead = true;
+		_phase = CombatPhase.Idle;
+		_hitbox.Close();
+		_marker?.SetPhase(CombatPhase.Idle);
+		Input.MouseMode = Input.MouseModeEnum.Visible;
+		GD.Print("El jugador ha muerto. Reiniciando la sala.");
+
+		SceneTreeTimer timer = GetTree().CreateTimer(RestartDelay);
+		timer.Timeout += () => GetTree().ReloadCurrentScene();
 	}
 }

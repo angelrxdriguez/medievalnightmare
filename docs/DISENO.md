@@ -170,7 +170,7 @@ siguiente hasta cerrar el anterior.
 | # | Hito | Hecho cuando... |
 |---|---|---|
 | M0 | Controlador en tercera persona | ✅ Camino, salto y caigo en una sala CSG |
-| M1 | Combate mínimo | Mato a un esqueleto con las 3 armas y él puede matarme |
+| M1 | Combate mínimo | ✅ Mato a un esqueleto con las 3 armas y él puede matarme |
 | M2 | Sala jugable | Una sala con 3 esqueletos, niebla y luz de antorcha, que se puede perder |
 | M3 | Inventario, equipo y alijo | Entro con espada, cojo una maza, extraigo, y vuelvo a entrar con la maza |
 | M4 | Los tres enemigos | Bruja y ogro completos, con su IA y su telegrafía |

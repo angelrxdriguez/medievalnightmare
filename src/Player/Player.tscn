@@ -1,7 +1,14 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://src/Player/PlayerController.cs" id="1_player"]
 [ext_resource type="Material" path="res://assets/materials/greybox/GreyboxGrid.tres" id="2_grid"]
+[ext_resource type="Script" path="res://src/Core/Health.cs" id="3_health"]
+[ext_resource type="Script" path="res://src/Core/MeleeHitbox.cs" id="4_hitbox"]
+[ext_resource type="Script" path="res://src/Core/TelegraphMarker.cs" id="5_telegraph"]
+[ext_resource type="Script" path="res://src/Ui/DebugHud.cs" id="6_hud"]
+[ext_resource type="Resource" path="res://src/Player/Weapons/EspadaCorta.tres" id="7_sword"]
+[ext_resource type="Resource" path="res://src/Player/Weapons/Maza.tres" id="8_mace"]
+[ext_resource type="Resource" path="res://src/Player/Weapons/Mandoble.tres" id="9_greatsword"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.35
@@ -20,10 +27,32 @@ roughness = 0.9
 material = SubResource("StandardMaterial3D_nose")
 size = Vector3(0.18, 0.18, 0.3)
 
-[node name="Player" type="CharacterBody3D"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_swing"]
+resource_local_to_scene = true
+size = Vector3(1.1, 1.2, 1.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_swing"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.9, 0.16, 0.1, 0.28)
+
+[sub_resource type="BoxMesh" id="BoxMesh_swing"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_swing")
+size = Vector3(1.1, 1.2, 1.8)
+
+[sub_resource type="BoxMesh" id="BoxMesh_telegraph"]
+size = Vector3(0.3, 0.3, 0.3)
+
+[node name="Player" type="CharacterBody3D" groups=["player"]]
 collision_layer = 2
-collision_mask = 1
+collision_mask = 5
 script = ExtResource("1_player")
+Weapons = Array[Resource]([ExtResource("7_sword"), ExtResource("8_mace"), ExtResource("9_greatsword")])
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")
+Max = 100.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
@@ -39,11 +68,42 @@ mesh = SubResource("CapsuleMesh_body")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -0.32)
 mesh = SubResource("BoxMesh_nose")
 
+[node name="Telegraph" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+mesh = SubResource("BoxMesh_telegraph")
+script = ExtResource("5_telegraph")
+
+[node name="AttackHitbox" type="Area3D" parent="Visual"]
+collision_layer = 0
+collision_mask = 4
+monitorable = false
+script = ExtResource("4_hitbox")
+
+[node name="Shape" type="CollisionShape3D" parent="Visual/AttackHitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -0.9)
+shape = SubResource("BoxShape3D_swing")
+
+[node name="Marker" type="MeshInstance3D" parent="Visual/AttackHitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -0.9)
+mesh = SubResource("BoxMesh_swing")
+
 [node name="CameraArm" type="SpringArm3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.978148, 0.207912, 0, -0.207912, 0.978148, 0, 1.55, 0)
+transform = Transform3D(1, 0, 0, 0, 0.978148, 0.207912, 0, -0.207912, 0.978148, 0.5, 1.55, 0)
 collision_mask = 1
 spring_length = 4.0
 margin = 0.2
 
 [node name="Camera" type="Camera3D" parent="CameraArm"]
 fov = 70.0
+
+[node name="DebugHud" type="CanvasLayer" parent="."]
+script = ExtResource("6_hud")
+
+[node name="Info" type="Label" parent="DebugHud"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 560.0
+offset_bottom = 92.0
+theme_override_colors/font_color = Color(0.95, 0.93, 0.88, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
