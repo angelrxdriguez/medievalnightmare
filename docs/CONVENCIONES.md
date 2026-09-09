@@ -17,7 +17,8 @@
 - Escena y script conviven en la misma carpeta de `src/`.
 
 ## Alcance
-Una mazmorra, 3 tipos de enemigo, un jefe, 2-3 horas.
+Definido en `DISENO.md`. Tres niveles, 3 tipos de enemigo, un jefe, 2-3 horas.
+Lo que no esta en ese documento no esta en el juego.
 Terminarlo tiene prioridad sobre ampliarlo.
 
 ## Entorno
