@@ -1,0 +1,25 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/skin.gdshader" id="1_skin"]
+
+[resource]
+resource_name = "Skin"
+shader = ExtResource("1_skin")
+shader_parameter/skin_pale = Color(0.42, 0.3, 0.235, 1)
+shader_parameter/skin_deep = Color(0.155, 0.102, 0.082, 1)
+shader_parameter/mottle_amount = 0.6
+shader_parameter/vein_color = Color(0.165, 0.145, 0.185, 1)
+shader_parameter/vein_amount = 0.28
+shader_parameter/vein_axis = Vector3(0, 1, 0)
+shader_parameter/vein_stretch = 8.0
+shader_parameter/grime_color = Color(0.098, 0.068, 0.048, 1)
+shader_parameter/grime_amount = 0.5
+shader_parameter/rim_color = Color(0.55, 0.3, 0.14, 1)
+shader_parameter/rim_amount = 0.2
+shader_parameter/rim_levels = 3.0
+shader_parameter/texels_per_meter = 380.0
+shader_parameter/color_levels = 9.0
+shader_parameter/dither_amount = 1.0
+shader_parameter/facet_amount = 0.5
+shader_parameter/vertex_grid = 0.0035
+shader_parameter/roughness_base = 0.74

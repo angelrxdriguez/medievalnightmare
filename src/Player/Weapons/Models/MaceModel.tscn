@@ -1,9 +1,10 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://src/Player/Weapons/Models/WeaponModel.cs" id="1_model"]
 [ext_resource type="Material" path="res://assets/materials/weapons/MaceIron.tres" id="2_iron"]
 [ext_resource type="Material" path="res://assets/materials/weapons/Oak.tres" id="3_oak"]
 [ext_resource type="Material" path="res://assets/materials/weapons/Leather.tres" id="4_leather"]
+[ext_resource type="PackedScene" path="res://src/Player/Weapons/Models/Hand.tscn" id="5_hand"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_pommel"]
 material = ExtResource("2_iron")
@@ -51,7 +52,7 @@ size = Vector3(0.085, 0.075, 0.016)
 
 [node name="Mace" type="Node3D"]
 script = ExtResource("1_model")
-RestPosition = Vector3(0.3, -0.36, -0.4)
+RestPosition = Vector3(0.3, -0.25, -0.4)
 RestRotationDegrees = Vector3(-46, -14, 12)
 SwingPlaneDegrees = 16.0
 SwingSweepDegrees = 95.0
@@ -109,3 +110,6 @@ mesh = SubResource("PrismMesh_flange")
 transform = Transform3D(0, 0, -1, -1, 0, 0, 0, 1, 0, 0, 0.415, 0.028)
 cast_shadow = 0
 mesh = SubResource("PrismMesh_flange")
+
+[node name="Hand" parent="." instance=ExtResource("5_hand")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.022, 0)

@@ -1,0 +1,81 @@
+[gd_resource type="Environment" load_steps=4 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/night_sky.gdshader" id="1_sky"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
+shader = ExtResource("1_sky")
+shader_parameter/zenith_color = Color(0.006, 0.009, 0.021, 1)
+shader_parameter/horizon_color = Color(0.052, 0.068, 0.112, 1)
+shader_parameter/ground_color = Color(0.004, 0.005, 0.009, 1)
+shader_parameter/horizon_falloff = 0.42
+shader_parameter/moon_color = Color(0.82, 0.87, 1, 1)
+shader_parameter/moon_size = 0.011
+shader_parameter/halo_color = Color(0.28, 0.36, 0.6, 1)
+shader_parameter/halo_amount = 1.15
+shader_parameter/halo_falloff = 42.0
+shader_parameter/moon_maria = 0.45
+shader_parameter/star_color = Color(0.64, 0.7, 0.9, 1)
+shader_parameter/star_scale = 120.0
+shader_parameter/star_threshold = 0.972
+shader_parameter/star_twinkle = 0.35
+shader_parameter/cloud_color = Color(0.078, 0.092, 0.128, 1)
+shader_parameter/cloud_amount = 0.5
+shader_parameter/cloud_scale = 1.6
+shader_parameter/cloud_speed = 0.014
+shader_parameter/color_levels = 16.0
+shader_parameter/dither_amount = 1.0
+
+[sub_resource type="Sky" id="Sky_night"]
+sky_material = SubResource("ShaderMaterial_sky")
+process_mode = 3
+radiance_size = 1
+
+[resource]
+background_mode = 2
+sky = SubResource("Sky_night")
+ambient_light_source = 2
+ambient_light_color = Color(0.2, 0.28, 0.46, 1)
+ambient_light_energy = 0.13
+tonemap_mode = 2
+tonemap_exposure = 1.05
+tonemap_white = 3.5
+ssr_enabled = false
+ssao_enabled = false
+ssil_enabled = false
+sdfgi_enabled = false
+glow_enabled = true
+glow_normalized = false
+glow_intensity = 0.4
+glow_strength = 1.0
+glow_mix = 0.06
+glow_bloom = 0.03
+glow_blend_mode = 0
+glow_hdr_threshold = 1.05
+glow_hdr_scale = 2.0
+glow_hdr_luminance_cap = 12.0
+fog_enabled = true
+fog_light_color = Color(0.058, 0.072, 0.098, 1)
+fog_light_energy = 1.0
+fog_sun_scatter = 0.12
+fog_density = 0.0095
+fog_sky_affect = 0.0
+fog_height = 0.25
+fog_height_density = 0.42
+fog_aerial_perspective = 0.0
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.015
+volumetric_fog_albedo = Color(0.6, 0.65, 0.78, 1)
+volumetric_fog_emission = Color(0.01, 0.013, 0.022, 1)
+volumetric_fog_emission_energy = 0.35
+volumetric_fog_gi_inject = 0.0
+volumetric_fog_anisotropy = 0.3
+volumetric_fog_length = 48.0
+volumetric_fog_detail_spread = 1.6
+volumetric_fog_ambient_inject = 0.0
+volumetric_fog_sky_affect = 0.0
+volumetric_fog_temporal_reprojection_enabled = true
+volumetric_fog_temporal_reprojection_amount = 0.92
+adjustment_enabled = true
+adjustment_brightness = 1.0
+adjustment_contrast = 1.12
+adjustment_saturation = 0.8

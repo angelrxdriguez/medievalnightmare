@@ -28,6 +28,23 @@
   mano por columnas, sale transpuesta.
 - **Nada de comentarios en los `.tscn`.** El editor los borra al reguardar. Lo
   que haya que explicar de una escena va en el script que la acompaña.
+- **Lo que se puede desfasar, se genera al arrancar.** La malla de navegación
+  (`LevelNavigation`), la siembra de hierba (`GrassField`) y los árboles secos
+  (`DeadTree`) no se guardan en la escena: se construyen al cargar el nivel. No
+  es por ahorrar trabajo, es porque un nivel de CSG se toca a diario y una malla
+  guardada se queda vieja EN SILENCIO — se ve a un esqueleto atravesando una
+  pared que ya no está donde dice su ruta, y eso se tarda media hora en atribuir
+  a la navegación. Cuesta unas décimas al cargar y no puede estar desfasado.
+- **Nada de eso se hace en `_Ready`.** El CSG del nivel construye su malla y su
+  colisión en una llamada DIFERIDA al entrar en el árbol, y las órdenes al
+  servidor de física encima no surten efecto hasta el siguiente paso. Lo que
+  hornee geometría va en `CallDeferred`; lo que lance rayos, dos pasos de física
+  después. Hacerlo antes no da error de ninguna clase: sale vacío.
+- **Semilla fija en la escena para lo que se autora una vez.** El esqueleto
+  reparte sus semillas por script porque se le añaden piezas; la mano del jugador
+  las lleva escritas en el `.tscn`
+  (`instance_shader_parameters/piece_seed`), porque son catorce piezas que no
+  cambian. La regla que no cambia es que TIENE que haber semilla.
 
 ## Código
 - C# es el lenguaje principal. GDScript solo para scripts triviales

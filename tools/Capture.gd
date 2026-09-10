@@ -18,6 +18,13 @@ func _run() -> void:
 	await _frames(40)
 	var player: Node = get_tree().get_first_node_in_group("player")
 
+	# Dentro de la sala y no donde empiece la partida. El jugador arranca en el
+	# pasillo, que es un tubo de 2,4 m: con la antorcha en la mano, las paredes
+	# salen quemadas y las armas no se ven contra ellas.
+	player.global_position = Vector3(0, 0.05, 6)
+	player.get_node("Head").rotation = Vector3(-0.04, 0, 0)
+	await _frames(10)
+
 	await _swing("espada", "attack_light", 8, 3)
 	_press("weapon_2")
 	await _frames(30)

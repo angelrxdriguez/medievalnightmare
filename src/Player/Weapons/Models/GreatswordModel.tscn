@@ -1,9 +1,10 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://src/Player/Weapons/Models/WeaponModel.cs" id="1_model"]
 [ext_resource type="Material" path="res://assets/materials/weapons/GreatswordSteel.tres" id="2_steel"]
 [ext_resource type="Material" path="res://assets/materials/weapons/Bronze.tres" id="3_bronze"]
 [ext_resource type="Material" path="res://assets/materials/weapons/Leather.tres" id="4_leather"]
+[ext_resource type="PackedScene" path="res://src/Player/Weapons/Models/Hand.tscn" id="5_hand"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_pommel"]
 material = ExtResource("3_bronze")
@@ -54,7 +55,7 @@ rings = 1
 
 [node name="Greatsword" type="Node3D"]
 script = ExtResource("1_model")
-RestPosition = Vector3(0.33, -0.46, -0.3)
+RestPosition = Vector3(0.33, -0.34, -0.3)
 RestRotationDegrees = Vector3(-66, -16, 18)
 SwingPlaneDegrees = 40.0
 SwingSweepDegrees = 128.0
@@ -93,3 +94,6 @@ mesh = SubResource("CylinderMesh_blade")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.24, 0, 1.135, 0)
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_point")
+
+[node name="Hand" parent="." instance=ExtResource("5_hand")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0)

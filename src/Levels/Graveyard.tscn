@@ -1,0 +1,389 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Environment" path="res://assets/environment/Graveyard.tres" id="1_env"]
+[ext_resource type="PackedScene" path="res://src/Player/Player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://src/Enemies/Skeleton/Skeleton.tscn" id="3_skeleton"]
+[ext_resource type="Material" path="res://assets/materials/graveyard/Headstone.tres" id="4_stone"]
+[ext_resource type="Material" path="res://assets/materials/graveyard/Mud.tres" id="5_mud"]
+[ext_resource type="Material" path="res://assets/materials/graveyard/Grass.tres" id="6_grass"]
+[ext_resource type="Material" path="res://assets/materials/graveyard/Crypt.tres" id="7_crypt"]
+[ext_resource type="Material" path="res://assets/materials/graveyard/GrassBlade.tres" id="8_blade"]
+[ext_resource type="PackedScene" path="res://src/Props/DeadTree.tscn" id="9_tree"]
+[ext_resource type="PackedScene" path="res://src/Props/Brazier.tscn" id="10_brazier"]
+[ext_resource type="Script" path="res://src/Levels/LevelNavigation.cs" id="11_nav"]
+[ext_resource type="Script" path="res://src/Levels/GrassField.cs" id="12_field"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_blade"]
+material = ExtResource("8_blade")
+size = Vector3(0.09, 0.42, 0.05)
+subdivide_height = 1
+
+[node name="Graveyard" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("1_env")
+
+[node name="Moon" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.9198, -0.1767, 0.35, 0, 0.8916, 0.45, -0.3926, 0.4139, -0.82, 0, 14, 0)
+light_color = Color(0.44, 0.56, 0.88, 1)
+light_energy = 1.6
+light_angular_distance = 0.6
+light_volumetric_fog_energy = 0.22
+shadow_enabled = true
+shadow_bias = 0.06
+shadow_normal_bias = 1.4
+directional_shadow_mode = 1
+directional_shadow_split_1 = 0.12
+directional_shadow_max_distance = 55.0
+directional_shadow_fade_start = 0.9
+
+[node name="Geometry" type="CSGCombiner3D" parent="." groups=["navigation_source"]]
+use_collision = true
+collision_layer = 1
+collision_mask = 0
+
+[node name="Ground" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+size = Vector3(62, 0.5, 70)
+material = ExtResource("6_grass")
+
+[node name="WallSouthWest" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.6, 0.8, 26)
+size = Vector3(19, 1.6, 0.6)
+material = ExtResource("7_crypt")
+
+[node name="WallSouthEast" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.6, 0.8, 26)
+size = Vector3(19, 1.6, 0.6)
+material = ExtResource("7_crypt")
+
+[node name="WallNorthWest" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0.75, -26)
+size = Vector3(16, 1.5, 0.6)
+material = ExtResource("7_crypt")
+
+[node name="WallNorthEast" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0.55, -26)
+size = Vector3(18, 1.1, 0.6)
+material = ExtResource("7_crypt")
+
+[node name="WallEast" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0.8, 2)
+size = Vector3(0.6, 1.6, 48)
+material = ExtResource("7_crypt")
+
+[node name="WallWest" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.7, -3)
+size = Vector3(0.6, 1.4, 46)
+material = ExtResource("7_crypt")
+
+[node name="GatePostWest" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.1, 1.3, 26)
+size = Vector3(0.9, 2.6, 0.9)
+material = ExtResource("7_crypt")
+
+[node name="GatePostEast" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1, 1.3, 26)
+size = Vector3(0.9, 2.6, 0.9)
+material = ExtResource("7_crypt")
+
+[node name="CryptBody" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1.55, -13)
+size = Vector3(4.4, 3.1, 5)
+material = ExtResource("7_crypt")
+
+[node name="CryptDoor" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1.05, -11.6)
+operation = 2
+size = Vector3(1.4, 2.3, 3.2)
+material = ExtResource("7_crypt")
+
+[node name="CryptStep" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.1, -10.1)
+size = Vector3(2.6, 0.24, 1.2)
+material = ExtResource("7_crypt")
+
+[node name="CryptRoofNorth" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0.9397, -0.342, 0, 0.342, 0.9397, 11, 3.78, -14.3)
+size = Vector3(4.9, 0.3, 3)
+material = ExtResource("7_crypt")
+
+[node name="CryptRoofSouth" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 0.9397, 0.342, 0, -0.342, 0.9397, 11, 3.78, -11.7)
+size = Vector3(4.9, 0.3, 3)
+material = ExtResource("7_crypt")
+
+[node name="Path1" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9907, 0, -0.1360, 0, 1, 0, 0.1360, 0, 0.9907, 2.083, -0.235, 24.000)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Path2" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9935, 0, 0.1136, 0, 1, 0, -0.1136, 0, 0.9935, 1.862, -0.235, 18.600)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Path3" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9916, 0, -0.1290, 0, 1, 0, 0.1290, 0, 0.9916, 1.841, -0.235, 13.200)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Path4" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9997, 0, -0.0244, 0, 1, 0, 0.0244, 0, 0.9997, 2.569, -0.235, 7.800)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Path5" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9002, 0, 0.4354, 0, 1, 0, -0.4354, 0, 0.9002, 1.295, -0.235, 2.400)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Path6" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9156, 0, 0.4021, 0, 1, 0, -0.4021, 0, 0.9156, -1.572, -0.235, -3.000)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Path7" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9976, 0, -0.0698, 0, 1, 0, 0.0698, 0, 0.9976, -2.541, -0.235, -8.400)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Path8" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9947, 0, -0.1031, 0, 1, 0, 0.1031, 0, 0.9947, -1.771, -0.235, -13.800)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Path9" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9929, 0, 0.1186, 0, 1, 0, -0.1186, 0, 0.9929, -1.933, -0.235, -19.200)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Path10" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9814, 0, -0.1919, 0, 1, 0, 0.1919, 0, 0.9814, -1.984, -0.235, -24.600)
+size = Vector3(3.2, 0.5, 6)
+material = ExtResource("5_mud")
+
+[node name="Stone1" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9347, -0.0000, 0.3556, 0.0000, 1.0000, 0, -0.3556, 0.0000, 0.9347, -2.741, 0.377, 21.953)
+size = Vector3(0.74, 0.99, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone2" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9678, -0.0000, 0.2517, 0.0000, 1.0000, 0, -0.2517, 0.0000, 0.9678, 6.604, 0.365, 20.287)
+size = Vector3(0.60, 0.97, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound2" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9678, 0, 0.2517, 0, 1, 0, -0.2517, 0, 0.9678, 6.504, 0.070, 21.637)
+size = Vector3(1.12, 0.22, 2.03)
+material = ExtResource("5_mud")
+
+[node name="Stone3" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.8888, 0.1321, -0.4387, -0.1471, 0.9891, 0, 0.4340, 0.0645, 0.8986, -6.634, 0.448, 18.390)
+size = Vector3(0.73, 1.14, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound3" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.8986, 0, -0.4387, 0, 1, 0, 0.4387, 0, 0.8986, -6.534, 0.070, 19.740)
+size = Vector3(0.87, 0.22, 1.74)
+material = ExtResource("5_mud")
+
+[node name="Stone4" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9937, -0.0000, -0.1120, 0.0000, 1.0000, 0, 0.1120, -0.0000, 0.9937, 11.448, 0.400, 17.891)
+size = Vector3(0.63, 1.04, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound4" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9937, 0, -0.1120, 0, 1, 0, 0.1120, 0, 0.9937, 11.348, 0.070, 19.241)
+size = Vector3(1.05, 0.22, 1.72)
+material = ExtResource("5_mud")
+
+[node name="Stone5" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9391, -0.0060, 0.3437, 0.0064, 1.0000, 0, -0.3437, 0.0022, 0.9391, -10.550, 0.293, 14.644)
+size = Vector3(0.66, 0.83, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound5" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9391, 0, 0.3437, 0, 1, 0, -0.3437, 0, 0.9391, -10.450, 0.070, 15.994)
+size = Vector3(0.92, 0.22, 2.04)
+material = ExtResource("5_mud")
+
+[node name="Stone6" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9324, -0.0655, 0.3555, 0.0701, 0.9975, 0, -0.3546, 0.0249, 0.9347, 11.965, 0.328, 14.441)
+size = Vector3(0.75, 0.90, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound6" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9347, 0, 0.3555, 0, 1, 0, -0.3555, 0, 0.9347, 11.865, 0.070, 15.791)
+size = Vector3(1.05, 0.22, 1.96)
+material = ExtResource("5_mud")
+
+[node name="Stone7" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9526, -0.0000, -0.3043, 0.0000, 1.0000, 0, 0.3043, -0.0000, 0.9526, -7.461, 0.304, 11.684)
+size = Vector3(0.59, 0.85, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound7" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9526, 0, -0.3043, 0, 1, 0, 0.3043, 0, 0.9526, -7.361, 0.070, 13.034)
+size = Vector3(0.97, 0.22, 1.86)
+material = ExtResource("5_mud")
+
+[node name="Stone8" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9734, -0.0000, 0.2290, 0.0000, 1.0000, 0, -0.2290, 0.0000, 0.9734, 7.339, 0.291, 12.159)
+size = Vector3(0.67, 0.82, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone9" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9999, -0.0000, -0.0151, 0.0000, 1.0000, 0, 0.0151, -0.0000, 0.9999, -2.953, 0.331, 8.524)
+size = Vector3(0.63, 0.90, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone10" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9514, -0.0000, 0.3081, 0.0000, 1.0000, 0, -0.3081, 0.0000, 0.9514, 8.964, 0.321, 8.980)
+size = Vector3(0.56, 0.88, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound10" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9514, 0, 0.3081, 0, 1, 0, -0.3081, 0, 0.9514, 8.864, 0.070, 10.330)
+size = Vector3(0.98, 0.22, 1.90)
+material = ExtResource("5_mud")
+
+[node name="Stone11" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.8935, -0.0000, 0.4490, 0.0000, 1.0000, 0, -0.4490, 0.0000, 0.8935, -4.929, 0.403, 7.322)
+size = Vector3(0.60, 1.05, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone12" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9993, -0.0000, 0.0364, 0.0000, 1.0000, 0, -0.0364, 0.0000, 0.9993, 11.009, 0.298, 7.323)
+size = Vector3(0.53, 0.84, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone13" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.8805, -0.0000, 0.4740, 0.0000, 1.0000, 0, -0.4740, 0.0000, 0.8805, -2.349, 0.384, 3.388)
+size = Vector3(0.55, 1.01, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone14" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9802, 0.1692, 0.1027, -0.1701, 0.9854, 0, -0.1012, -0.0175, 0.9947, 12.389, 0.287, 3.410)
+size = Vector3(0.70, 0.81, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone15" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9993, -0.0000, -0.0380, 0.0000, 1.0000, 0, 0.0380, -0.0000, 0.9993, -9.937, 0.300, 0.277)
+size = Vector3(0.64, 0.84, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone16" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.8955, -0.0017, 0.4450, 0.0019, 1.0000, 0, -0.4450, 0.0008, 0.8955, 8.973, 0.382, 1.151)
+size = Vector3(0.60, 1.00, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound16" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.8955, 0, 0.4450, 0, 1, 0, -0.4450, 0, 0.8955, 8.873, 0.070, 2.501)
+size = Vector3(0.89, 0.22, 1.82)
+material = ExtResource("5_mud")
+
+[node name="Stone17" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9852, -0.1688, -0.0302, 0.1689, 0.9856, 0, 0.0298, -0.0051, 0.9995, -12.536, 0.437, -2.369)
+size = Vector3(0.59, 1.11, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone18" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9308, 0.1200, -0.3453, -0.1279, 0.9918, 0, 0.3425, 0.0442, 0.9385, 8.662, 0.291, -3.270)
+size = Vector3(0.74, 0.82, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone19" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9061, -0.0000, 0.4232, 0.0000, 1.0000, 0, -0.4232, 0.0000, 0.9061, -7.673, 0.249, -4.661)
+size = Vector3(0.66, 0.74, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound19" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9061, 0, 0.4232, 0, 1, 0, -0.4232, 0, 0.9061, -7.573, 0.070, -3.311)
+size = Vector3(1.13, 0.22, 1.88)
+material = ExtResource("5_mud")
+
+[node name="Stone20" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9539, -0.0000, 0.3000, 0.0000, 1.0000, 0, -0.3000, 0.0000, 0.9539, 2.410, 0.424, -5.420)
+size = Vector3(0.50, 1.09, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone21" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9148, -0.0103, 0.4039, 0.0113, 0.9999, 0, -0.4038, 0.0046, 0.9148, -9.163, 0.419, -8.826)
+size = Vector3(0.67, 1.08, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone22" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9921, -0.0000, -0.1253, 0.0000, 1.0000, 0, 0.1253, -0.0000, 0.9921, 9.259, 0.342, -7.463)
+size = Vector3(0.72, 0.92, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Stone23" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9886, -0.0000, -0.1504, 0.0000, 1.0000, 0, 0.1504, -0.0000, 0.9886, -11.416, 0.332, -10.157)
+size = Vector3(0.75, 0.90, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Mound23" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9886, 0, -0.1504, 0, 1, 0, 0.1504, 0, 0.9886, -11.316, 0.070, -8.807)
+size = Vector3(0.95, 0.22, 1.86)
+material = ExtResource("5_mud")
+
+[node name="Stone24" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(0.9392, -0.0000, 0.3433, 0.0000, 1.0000, 0, -0.3433, 0.0000, 0.9392, 2.378, 0.444, -10.715)
+size = Vector3(0.54, 1.13, 0.15)
+material = ExtResource("4_stone")
+
+[node name="Grass" type="MultiMeshInstance3D" parent="."]
+cast_shadow = 0
+script = ExtResource("12_field")
+Blade = SubResource("PrismMesh_blade")
+Count = 6500
+Area = Vector2(34, 52)
+
+[node name="Trees" type="Node3D" parent="."]
+
+[node name="TreeWest" parent="Trees" instance=ExtResource("9_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.5, 0, -6)
+Seed = 3
+
+[node name="TreeEast" parent="Trees" instance=ExtResource("9_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.5, 0, 9)
+Seed = 11
+
+[node name="TreeSouth" parent="Trees" instance=ExtResource("9_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 0, 15)
+Seed = 23
+
+[node name="TreeNorth" parent="Trees" instance=ExtResource("9_tree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -21)
+Seed = 41
+
+[node name="Braziers" type="Node3D" parent="."]
+
+[node name="BrazierGateWest" parent="Braziers" instance=ExtResource("10_brazier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7, 0, 21.8)
+
+[node name="BrazierGateEast" parent="Braziers" instance=ExtResource("10_brazier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7, 0, 21.8)
+
+[node name="BrazierCrypt" parent="Braziers" instance=ExtResource("10_brazier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.6, 0, -10.6)
+
+[node name="BrazierPath" parent="Braziers" instance=ExtResource("10_brazier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 0, 4.5)
+
+[node name="Navigation" type="NavigationRegion3D" parent="."]
+script = ExtResource("11_nav")
+BakeBounds = AABB(-32, -1, -36, 64, 3.6, 72)
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 24)
+
+[node name="Skeleton1" parent="." instance=ExtResource("3_skeleton")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.05, 6)
+
+[node name="Skeleton2" parent="." instance=ExtResource("3_skeleton")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 7, 0.05, -2)
+
+[node name="Skeleton3" parent="." instance=ExtResource("3_skeleton")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -4, 0.05, -16)

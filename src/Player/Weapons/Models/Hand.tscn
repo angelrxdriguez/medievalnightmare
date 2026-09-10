@@ -1,0 +1,143 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Material" path="res://assets/materials/creatures/Skin.tres" id="1_skin"]
+[ext_resource type="Material" path="res://assets/materials/weapons/Leather.tres" id="2_leather"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_dorsum"]
+material = ExtResource("1_skin")
+size = Vector3(0.024, 0.086, 0.054)
+
+[sub_resource type="BoxMesh" id="BoxMesh_palm"]
+material = ExtResource("1_skin")
+size = Vector3(0.024, 0.078, 0.046)
+
+[sub_resource type="BoxMesh" id="BoxMesh_heel"]
+material = ExtResource("1_skin")
+size = Vector3(0.05, 0.03, 0.024)
+
+[sub_resource type="BoxMesh" id="BoxMesh_knuckle"]
+material = ExtResource("1_skin")
+size = Vector3(0.042, 0.018, 0.02)
+
+[sub_resource type="BoxMesh" id="BoxMesh_tip"]
+material = ExtResource("1_skin")
+size = Vector3(0.034, 0.017, 0.019)
+
+[sub_resource type="BoxMesh" id="BoxMesh_little"]
+material = ExtResource("1_skin")
+size = Vector3(0.032, 0.015, 0.017)
+
+[sub_resource type="BoxMesh" id="BoxMesh_thumb"]
+material = ExtResource("1_skin")
+size = Vector3(0.046, 0.024, 0.025)
+
+[sub_resource type="BoxMesh" id="BoxMesh_thumb_tip"]
+material = ExtResource("1_skin")
+size = Vector3(0.028, 0.021, 0.022)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_wrist"]
+material = ExtResource("1_skin")
+top_radius = 0.032
+bottom_radius = 0.035
+height = 0.072
+radial_segments = 6
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_bracer"]
+material = ExtResource("2_leather")
+top_radius = 0.042
+bottom_radius = 0.046
+height = 0.105
+radial_segments = 6
+rings = 1
+
+[node name="Hand" type="Node3D"]
+
+[node name="Dorsum" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.028, 0.002, -0.004)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dorsum")
+instance_shader_parameters/piece_seed = 0.11
+
+[node name="Palm" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.028, -0.004, 0.004)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_palm")
+instance_shader_parameters/piece_seed = 0.83
+
+[node name="Heel" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012, -0.034, 0.022)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_heel")
+instance_shader_parameters/piece_seed = 0.66
+
+[node name="IndexBase" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.731, 0, 0.682, 0, 1, 0, -0.682, 0, 0.731, -0.0205, 0.032, -0.0219)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_knuckle")
+instance_shader_parameters/piece_seed = 0.27
+
+[node name="IndexTip" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.866, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866, 0.015, 0.032, -0.026)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_tip")
+instance_shader_parameters/piece_seed = 0.62
+
+[node name="MiddleBase" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.731, 0, 0.682, 0, 1, 0, -0.682, 0, 0.731, -0.0205, 0.011, -0.0233)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_knuckle")
+instance_shader_parameters/piece_seed = 0.05
+
+[node name="MiddleTip" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.866, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866, 0.016, 0.011, -0.0277)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_tip")
+instance_shader_parameters/piece_seed = 0.44
+
+[node name="RingBase" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.731, 0, 0.682, 0, 1, 0, -0.682, 0, 0.731, -0.0205, -0.01, -0.0219)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_knuckle")
+instance_shader_parameters/piece_seed = 0.71
+
+[node name="RingTip" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.866, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866, 0.015, -0.01, -0.026)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_tip")
+instance_shader_parameters/piece_seed = 0.19
+
+[node name="LittleBase" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.731, 0, 0.682, 0, 1, 0, -0.682, 0, 0.731, -0.0195, -0.029, -0.0205)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_little")
+instance_shader_parameters/piece_seed = 0.36
+
+[node name="LittleTip" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.866, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866, 0.012, -0.029, -0.0235)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_little")
+instance_shader_parameters/piece_seed = 0.94
+
+[node name="ThumbBase" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.866, 0, -0.5, 0, 1, 0, 0.5, 0, -0.866, 0.01, 0.029, 0.028)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_thumb")
+instance_shader_parameters/piece_seed = 0.53
+
+[node name="ThumbTip" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.985, 0, -0.174, 0, 1, 0, 0.174, 0, -0.985, -0.024, 0.034, 0.033)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_thumb_tip")
+instance_shader_parameters/piece_seed = 0.78
+
+[node name="Wrist" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.026, -0.062, 0.014)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_wrist")
+instance_shader_parameters/piece_seed = 0.42
+
+[node name="Bracer" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.028, -0.126, 0.016)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_bracer")

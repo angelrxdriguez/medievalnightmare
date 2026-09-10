@@ -1,0 +1,26 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/dungeon_stone.gdshader" id="1_stone"]
+
+[resource]
+resource_name = "Headstone"
+shader = ExtResource("1_stone")
+shader_parameter/stone_light = Color(0.255, 0.255, 0.245, 1)
+shader_parameter/stone_dark = Color(0.088, 0.09, 0.088, 1)
+shader_parameter/mortar_color = Color(0.05, 0.052, 0.048, 1)
+shader_parameter/brick_size = Vector2(4, 4)
+shader_parameter/mortar_width = 0.0
+shader_parameter/row_offset = 0.0
+shader_parameter/mortar_depth = 0.35
+shader_parameter/damp_color = Color(0.042, 0.048, 0.04, 1)
+shader_parameter/damp_height = 0.75
+shader_parameter/damp_amount = 0.8
+shader_parameter/moss_color = Color(0.075, 0.105, 0.045, 1)
+shader_parameter/moss_amount = 0.75
+shader_parameter/soot_color = Color(0.03, 0.032, 0.028, 1)
+shader_parameter/soot_amount = 0.0
+shader_parameter/texels_per_meter = 96.0
+shader_parameter/color_levels = 18.0
+shader_parameter/roughness_base = 0.94
+shader_parameter/cavity_ao = 0.6
+shader_parameter/triplanar_sharpness = 5.0

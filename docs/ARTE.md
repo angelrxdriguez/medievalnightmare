@@ -379,6 +379,50 @@ hasta 80 ms tarde y el jugador estaría leyendo un golpe que ya ha pasado. En el
 esqueleto el escalonado es adorno; aquí sería mentir sobre los tiempos. El
 parámetro está expuesto (`PoseHz`) para poder verlo puesto.
 
+
+## 5 ter. La mano del jugador
+
+Las armas ya no flotan. Cada una lleva un puño agarrando el mango
+(`src/Player/Weapons/Models/Hand.tscn`, catorce piezas) y un antebrazo que sale
+de cuadro por abajo.
+
+**Lo que costó no fue la mano, fue el hueco.** La primera versión eran dos
+lajas —dorso y dedos— y el mango se veía A TRAVÉS de la mano, porque no había
+palma: un puño alrededor de un palo es un TUBO, y le hace falta pared por los
+dos lados. Con el dorso en −X, la palma en +X y los dedos cerrando por delante,
+el hueco desaparece y el puño se lee de cualquier ángulo.
+
+**Las cuatro armas subieron siete centímetros.** No es un ajuste de gusto: las
+poses de reposo se afinaron cuando no había mano, así que la empuñadura caía
+justo en el borde inferior de la pantalla y el puño quedaba cortado por la mitad.
+Es el precio de tener manos y hay que pagarlo una vez.
+
+**El mandoble lleva una sola mano.** La segunda tendría que ir en la parte alta
+de una empuñadura de 25 cm, y su antebrazo cruzaría por encima de la primera:
+dos brazos entrelazados sin brazos que los expliquen. Sale con los brazos, en
+M7.
+
+### La piel
+
+Octavo shader (`assets/shaders/skin.gdshader`) y el único del juego que no es
+materia muerta. La trampa de la piel es que hacerla BIEN la hace parecer de
+ahora, así que lo que la fecha en 2001 son tres renuncias:
+
+| Decisión | Por qué |
+|---|---|
+| No es rosa | La carne de la época venía de una paleta indexada donde el rosa se comía media rampa. Aquí es ocre sucio a nueve escalones. Saturada parece un guante de goma |
+| La mancha es grande | A un palmo de la cámara el poro y el vello no existen; lo que se ve es la mancha de dos centímetros. El ruido grande manda sobre el pequeño |
+| Sin *subsurface* | La piel real deja pasar la luz por los bordes finos, y ponerlo la vuelve de cera moderna. En su lugar hay un reborde caliente **a tres escalones**, que es el mismo truco del hueso |
+
+El `vertex_grid` es 0,0035, el MISMO que el acero, la madera y el cuero. Es la
+razón por la que existe `retro.gdshaderinc`: si la mano temblara con otra
+rejilla, se despegaría del mango un píxel por fotograma.
+
+La semilla por pieza no la reparte un script como en el esqueleto: son catorce
+piezas fijas de un modelo que se autora una vez, así que va escrita en la escena
+(`instance_shader_parameters/piece_seed`). Sin ella, cinco dedos con el mismo
+material son cinco veces el mismo dedo.
+
 ## 6. La telegrafía se mudó a los ojos
 
 Era un cubo gris flotando sobre la cabeza. Ahora son las cuencas del cráneo, con
@@ -395,6 +439,68 @@ bandos:
 **Solo late la anticipación.** El latido se ve mucho antes que el color: primero
 lo notas por el rabillo del ojo, luego lo miras y ya distingues si es ámbar o
 morado. Ese medio segundo es el combate entero.
+
+## 6 bis. El exterior de noche: el cementerio
+
+`src/Levels/Graveyard.tscn` es una prueba de aspecto, igual que lo fue la sala.
+No entra en el plan de niveles: está para ver hasta dónde puede llegar el juego
+fuera de una mazmorra, que es donde el truco de "todo lo ilumina una antorcha"
+deja de valer.
+
+**Fuera, la luna hace lo que dentro hacen las antorchas.** Una `DirectionalLight3D`
+azul fría a 1,6 de energía y una ambiental a 0,13. La regla de §4 no cambia, solo
+cambia quién la cumple: la oposición frío/cálido sigue siendo todo el contraste
+del cuadro, con la luna arriba y los braseros abajo.
+
+**El cielo es un shader, no una textura** (`night_sky.gdshader`), y hace tres
+cosas:
+
+- **Pone la luna donde está la luz.** El disco sale de `LIGHT0_DIRECTION`, o sea
+  de la propia direccional del nivel. Girar la luz mueve la luna y las sombras
+  largas siempre apuntan al revés que ella. Puesta a mano se descuadra la primera
+  vez que alguien toca la luz.
+- **Da silueta.** El horizonte no es negro: es azul sucio y sube a casi negro en
+  el cenit. Sin ese fondo más claro, los árboles secos y el tejado del panteón no
+  existen.
+- **Bandea.** Un cielo de 2001 no tenía degradado continuo, tenía BANDAS de
+  paleta indexada. `retro_bands` con el Bayer las devuelve.
+
+Las estrellas son un PUNTO dentro de su celda, no la celda entera. Pintando la
+celda salen cuadrados del tamaño de la rejilla y el cielo se lee como NIEVE: fue
+lo primero que hubo que arreglar.
+
+### La hierba
+
+Dos piezas y hacen trabajos distintos.
+
+**El suelo** (`grass_ground.gdshader`) no es triplanar y es a propósito: es
+siempre horizontal, así que se mapea por la planta y cuesta un tercio. Lleva tres
+capas —la mata, la calva y el peine— y ninguna se llama "hierba". La calva es la
+que importa: sin tierra asomando, un prado es una moqueta verde, y una moqueta
+verde es lo que hace que un exterior parezca de juguete.
+
+**Las briznas** son un `MultiMesh` de ~5.800 cuñas sembradas al arrancar
+(`src/Levels/GrassField.cs`): una sola llamada de dibujado. Son GEOMETRÍA y no un
+recorte con alfa porque aquí no hay texturas, porque el recorte obliga a evaluar
+el alfa otra vez en cada pasada de sombra, y porque un cuadrado plano desaparece
+de canto y una cuña no.
+
+Cada brizna se apoya en el suelo con un rayo, no a una altura fija: así los
+montículos de las tumbas salen con hierba encima. El compás del viento sale de
+DÓNDE ESTÁ la brizna, así que lo que cruza el prado es una ola y no dos mil
+briznas temblando cada una por su cuenta.
+
+### Los árboles
+
+Se generan con semilla (`src/Props/DeadTree.cs`). Cuatro copias del mismo árbol
+se reconocen al instante, y de noche lo único que se ve de un árbol sin hojas es
+la SILUETA. Tres reglas: el tronco se dobla en tres tramos, las ramas se
+enderezan al salir —rectas en abanico se leen como un tenedor— y los ramillos son
+muchos y cortos, que son los que erizan la silueta.
+
+Cada rama lleva su propia malla en vez de escalar una compartida: el shader de
+madera mide sus texeles en espacio de MODELO, así que un ramillo escalado a la
+vigésima parte tendría la veta veinte veces más fina y herviría al moverse.
 
 ## 7. Presupuesto de rendimiento
 
@@ -437,6 +543,25 @@ De dónde salió, por orden de lo que más dio:
 El shader de piedra **no** era el cuello de botella: optimizarlo de 430 a 56
 hashes por píxel apenas movió la cifra. Lo caro eran las sombras y los efectos de
 pantalla. Conviene medir antes de optimizar.
+
+
+### El cementerio, y en qué máquina se midió esto
+
+| Nivel | fps (esta máquina, sin vsync) |
+|---|---|
+| Cripta | 858 – 1276 |
+| **Cementerio** | **726 – 1083** |
+
+Medido el 10-09-2026 con `tools/Perf.tscn` en los siete encuadres de cada nivel.
+Lo único que dicen estas cifras es lo que se buscaba saber: **el exterior cuesta
+un 15 % más que la sala cerrada**, no diez veces más. Casi seis mil briznas en una
+sola llamada de dibujado, una direccional con sombra y cuatro braseros entran en
+el mismo orden de magnitud que seis antorchas y tres esqueletos.
+
+Lo que NO dicen es si el juego llega a 60. **Esta máquina es la de GPU dedicada**
+—la misma en la que el esqueleto de 47 piezas marcaba 548 – 913 fps—, no la Intel
+integrada de la tabla de arriba. El rango de 52 – 72 fps sigue sin verificarse
+donde importa, y ahora hay más que verificar que antes.
 
 ### El esqueleto de 47 piezas
 
@@ -529,9 +654,56 @@ no aporta nada, pero se pagarían seis veces cada una.
   detrás, o sea negros. No hace falta tocar `FRONT_FACING`: se giran los paños
   para que su normal mire hacia fuera y se acabó.
 
+- **Un rayo lanzado al arrancar no toca nada.** El CSG del nivel construye su
+  colisión en una llamada diferida al entrar en el árbol, y encima las órdenes al
+  servidor de física no surten efecto hasta el siguiente paso. Sembrar la hierba
+  en `_Ready` dejaba el prado con CERO briznas: sin error, sin aviso y sin nada en
+  pantalla. Se siembra dos pasos de física después.
+- **Hornear la navegación tampoco vale en `_Ready`,** por la primera mitad de lo
+  mismo: el CSG todavía no ha generado su malla y la región sale vacía sin decir
+  por qué. Va en una llamada diferida, y si sale con cero polígonos lo dice.
+- **La niebla a ras de suelo se comió la hierba entera.** Con `fog_height` a 1,1 m
+  y `fog_height_density` a 0,85, todo lo que mide menos de un metro —o sea, las
+  briznas y las lápidas bajas— quedaba teñido del color de la niebla y
+  desaparecía. Se ve como un descampado liso y se atribuye a que el prado no se ha
+  sembrado, que es justo lo que NO pasaba.
+- **La rejilla de niebla volumétrica es de 40 × 24 y fuera se nota.** Cada brasero
+  salía envuelto en un CONO gris de bordes duros, que son las celdas de la
+  rejilla. Se arregla encendiendo `use_filter` y bajando el
+  `light_volumetric_fog_energy` de la fuente. Dentro de la mazmorra no se veía
+  porque las paredes están a tres metros.
+- **La antorcha de mano quema un pasillo estrecho.** Está calibrada para una sala
+  de 29 m; a 1,2 m de la pared, las mismas paredes salen blancas y no se ve ni la
+  sillería. Se arregla con material propio para el pasillo (más oscuro y con
+  hollín), no tocando la antorcha, que en la sala está bien.
+- **Un enemigo colocado GIRADO en el nivel apuntaba mal todos sus golpes.** El
+  ángulo hacia el jugador se calcula en coordenadas de mundo y se escribía en un
+  nodo hijo del cuerpo, así que el giro del cuerpo se sumaba. Como la caja de
+  golpe cuelga del mismo nodo, fallaba por lo mismo y en la misma dirección: se
+  veía al bicho pegando al aire. Hay que descontar `GlobalBasis.GetEuler().Y`.
+
+- **Las caras que crea una RESTA de CSG llevan el material del molde que resta,
+  no el de la pieza restada.** Y un molde de resta normalmente no lleva material
+  ninguno, así que esas caras salen con el material blanco por defecto: albedo 1,
+  liso y sin una junta. Con una antorcha a metro y medio eso es una pared BLANCA.
+  Es lo que tenía el pasillo de entrada —se echaba la culpa a la antorcha, que
+  está bien calibrada— y es también, palabra por palabra, el "el interior del
+  hueco del techo se quema" que llevaba meses en la lista de §10. **Al molde
+  también se le pone material.**
+
+- **Las operaciones de CSG se aplican en ORDEN DE ÁRBOL, y una resta solo resta
+  lo que ya está puesto.** El vano de la puerta restaba la pared del fondo, pero
+  el pasillo se unía DESPUÉS y volvía a tapar el agujero con un tapón de cuarenta
+  centímetros. Desde dentro de la sala el nivel se ve perfecto —la pared tiene su
+  puerta— y no hay error de ninguna clase; lo único que pasa es que no se puede
+  CRUZAR. Estuvo así desde que se hizo el pasillo y no se vio hasta que el jugador
+  empezó a nacer dentro de él. **Lo que perfora va al final**, después de todo lo
+  que tenga que perforar. Lo caza `tools/Nav.tscn`, que ahora anda cuatro
+  segundos hacia delante antes de mirar nada más.
+
 ## 9. Herramientas
 
-Tres escenas de desarrollo que no forman parte del juego y se pueden borrar sin
+Seis escenas de desarrollo que no forman parte del juego y se pueden borrar sin
 que se entere nadie. Están porque afinar una pose a ciegas es imposible y con
 esto se ve el resultado en veinte segundos.
 
@@ -539,7 +711,10 @@ esto se ve el resultado en veinte segundos.
 |---|---|
 | `godot --path . tools/Rig.tscn` | Un esqueleto solo. Hace dos RETRATOS de siete tomas —cuatro lados, primer plano de la cabeza, torso y a once metros—, uno con luz de estudio y otro con la luz del juego, y luego el ciclo de marcha, el ataque, el respingo y el derrumbe. Todo a `user://` |
 | `godot --path . tools/Capture.tscn` | La sala de pruebas de verdad: recorre las cuatro armas golpeando, bloquea, esquiva y mata a un esqueleto, guardando capturas en `user://` |
-| `godot --path . tools/Perf.tscn` | Los siete encuadres de §7 y el rango de fps |
+| `godot --path . tools/Perf.tscn -- cripta` | Los siete encuadres de §7 y el rango de fps. Acepta `cementerio` |
+| `godot --path . tools/Look.tscn -- cripta` | Encuadres fijos de un nivel, sin HUD, para MIRARLO sin jugarlo. Acepta `cementerio`. Es la única forma de comparar dos versiones de una iluminación: a ojo y jugando, la memoria de cómo se veía hace diez minutos no vale nada |
+| `godot --headless --path . tools/Nav.tscn -- cripta` | Comprueba que se puede ENTRAR al nivel andando, que los esqueletos andan por él en vez de empujar un pilar y que se reparten el turno. Acepta `cementerio`. Sin ventana y con código de salida: vale para automatizarlo |
+| `godot --headless --path . tools/Ui.tscn` | Comprueba la pausa y la muerte, que es lo único de la interfaz que no se ve en una captura |
 
 `Capture.gd` baja `Engine.time_scale` durante los golpes. No es capricho:
 guardar un PNG cuesta décimas de segundo REALES y el delta del motor es tiempo
@@ -547,21 +722,21 @@ real, así que sin frenar el reloj entre captura y captura se va medio golpe.
 
 ## 10. Lo que falta
 
-- **Las manos del jugador.** Se ven las armas flotando: no hay brazos. Es
-  trabajo de M7 y está anotado como decisión abierta en `DISENO.md` §13.
+- **Los BRAZOS del jugador.** La mano ya está (§5 ter), pero se corta en el
+  antebrazo y el resto del brazo no existe. Es trabajo de M7, y con él llega la
+  segunda mano del mandoble.
 - **Sonido.** Media atmósfera de una mazmorra es el goteo y el eco, y aquí no
   hay ni una muestra.
 - **El arma atraviesa las paredes.** Lo estándar es un segundo `Viewport` con
   su propia cámara; la antorcha ya tenía el mismo problema.
-- **El interior del hueco del techo se quema.** La cara de fondo de la reja sale
-  a blanco puro. Se arregla con un material propio más oscuro para el brocal.
 - **El fémur atraviesa el harapo al andar.** El faldón cuelga de la cadera y no
   sabe nada de las piernas, así que en la zancada larga el muslo lo cruza. Se
   puede tapar estrechando los paños o darle al paño delantero un giro con la
   fase del paso; de momento se deja, que atravesarse era rutina en la época.
-- **El presupuesto de §7 está sin medir con el bicho nuevo.** El A/B se hizo en
-  una máquina con GPU dedicada y ahí no se nota; hace falta repetirlo en la
-  Intel integrada antes de dar por bueno el rango de 52 – 72 fps.
+- **El presupuesto de §7 sigue sin medirse donde importa.** Todo lo medido hasta
+  hoy —el A/B del esqueleto y las cifras del cementerio— se hizo en una máquina
+  con GPU dedicada, donde todo va sobrado. Hace falta repetirlo en la Intel
+  integrada antes de dar por bueno el rango de 52 – 72 fps.
 - **Los otros dos enemigos no existen.** El ogro y el jefe siguen siendo una
   línea en `DISENO.md`. Lo de aquí —proporciones exageradas, cuatro formas
   elegidas, semilla por pieza y luz a escalones— es la receta y debería

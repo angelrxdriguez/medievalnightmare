@@ -1,10 +1,11 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://src/Player/Weapons/Models/WeaponModel.cs" id="1_model"]
 [ext_resource type="Material" path="res://assets/materials/weapons/MaceIron.tres" id="2_iron"]
 [ext_resource type="Material" path="res://assets/materials/weapons/Oak.tres" id="3_oak"]
 [ext_resource type="Material" path="res://assets/materials/weapons/Cord.tres" id="4_cord"]
 [ext_resource type="Material" path="res://assets/materials/weapons/Steel.tres" id="5_steel"]
+[ext_resource type="PackedScene" path="res://src/Player/Weapons/Models/Hand.tscn" id="6_hand"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_stock"]
 material = ExtResource("3_oak")
@@ -63,7 +64,7 @@ rings = 1
 
 [node name="Crossbow" type="Node3D"]
 script = ExtResource("1_model")
-RestPosition = Vector3(0.08, -0.3, -0.5)
+RestPosition = Vector3(0.08, -0.235, -0.5)
 RestRotationDegrees = Vector3(-4, 3, 2)
 SwingPlaneDegrees = 0.0
 SwingSweepDegrees = 0.0
@@ -129,3 +130,6 @@ mesh = SubResource("CylinderMesh_shaft")
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.05, -0.43)
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_boltHead")
+
+[node name="Hand" parent="." instance=ExtResource("6_hand")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, -0.03, 0)

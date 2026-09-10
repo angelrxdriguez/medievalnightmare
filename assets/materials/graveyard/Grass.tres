@@ -1,0 +1,22 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/grass_ground.gdshader" id="1_grass"]
+
+[resource]
+resource_name = "Grass"
+shader = ExtResource("1_grass")
+shader_parameter/grass_live = Color(0.13, 0.165, 0.078, 1)
+shader_parameter/grass_dead = Color(0.19, 0.168, 0.092, 1)
+shader_parameter/grass_deep = Color(0.026, 0.035, 0.021, 1)
+shader_parameter/dead_amount = 0.62
+shader_parameter/clump_size = 2.4
+shader_parameter/soil_color = Color(0.078, 0.062, 0.044, 1)
+shader_parameter/soil_amount = 0.45
+shader_parameter/grit_amount = 0.35
+shader_parameter/comb_axis = Vector2(1, 0.35)
+shader_parameter/comb_stretch = 14.0
+shader_parameter/comb_amount = 0.4
+shader_parameter/texels_per_meter = 44.0
+shader_parameter/color_levels = 12.0
+shader_parameter/dither_amount = 1.0
+shader_parameter/roughness_base = 0.97

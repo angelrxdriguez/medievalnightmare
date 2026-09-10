@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/haft.gdshader" id="1_haft"]
+
+[resource]
+resource_name = "Bark"
+shader = ExtResource("1_haft")
+shader_parameter/wood_dark = Color(0.016, 0.014, 0.012, 1)
+shader_parameter/wood_light = Color(0.062, 0.049, 0.036, 1)
+shader_parameter/grain_axis = Vector3(0, 1, 0)
+shader_parameter/grain_stretch = 18.0
+shader_parameter/knot_density = 5.5
+shader_parameter/knot_amount = 0.65
+shader_parameter/wrap_bands = 0.0
+shader_parameter/wrap_color = Color(0.1, 0.07, 0.045, 1)
+shader_parameter/texels_per_meter = 140.0
+shader_parameter/color_levels = 9.0
+shader_parameter/dither_amount = 1.0
+shader_parameter/facet_amount = 0.6
+shader_parameter/vertex_grid = 0.0
+shader_parameter/roughness_base = 0.97

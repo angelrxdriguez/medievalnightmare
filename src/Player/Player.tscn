@@ -16,6 +16,8 @@
 [ext_resource type="Script" path="res://src/Player/Weapons/WeaponView.cs" id="16_weapon_view"]
 [ext_resource type="Material" path="res://assets/materials/dungeon/Flame.tres" id="15_flame"]
 [ext_resource type="Material" path="res://assets/materials/weapons/Oak.tres" id="17_oak"]
+[ext_resource type="Script" path="res://src/Ui/PauseMenu.cs" id="18_pause"]
+[ext_resource type="Script" path="res://src/Ui/DeathScreen.cs" id="19_death"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_haft"]
 material = ExtResource("17_oak")
@@ -179,3 +181,33 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("13_crosshair")
+
+[node name="PauseMenu" type="CanvasLayer" parent="."]
+script = ExtResource("18_pause")
+
+[node name="DeathScreen" type="CanvasLayer" parent="."]
+layer = 9
+script = ExtResource("19_death")
+
+[node name="Fade" type="ColorRect" parent="DeathScreen"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="Title" type="Label" parent="DeathScreen"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.72, 0.15, 0.09, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 44
+horizontal_alignment = 1
+vertical_alignment = 1

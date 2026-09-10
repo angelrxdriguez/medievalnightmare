@@ -290,6 +290,25 @@ Si el juego no es divertido en cajas grises, no lo va a arreglar una textura.
 > se vea bien no cuenta como progreso. Si M2 no sale, lo que hay que tirar es
 > esto, no el combate.
 
+> **Segunda excepción, también a sabiendas (10-09-2026).** Se ha hecho un
+> cementerio exterior nocturno (`src/Levels/Graveyard.tscn`) por la misma razón
+> que la sala: ver a dónde puede llegar el juego fuera de una mazmorra, donde
+> "todo lo ilumina una antorcha" deja de valer. Está en `ARTE.md` §6 bis.
+>
+> **Tampoco cambia el plan.** No es un nivel del juego, no aparece en la tabla de
+> la sección 8 y no se juega para nada. El hito abierto sigue siendo M2.
+>
+> **Lo que M2 sí tiene ya:** los tres esqueletos rodean y se turnan para atacar en
+> vez de amontonarse, andan por la sala con malla de navegación en vez de empujar
+> los pilares, solo se despiertan si te VEN —de ahí que te los encuentres de uno
+> en uno—, se entra por el pasillo y morir se lee como perder. **Lo que le falta
+> es lo único que importa: jugarlo.** Las cuatro preguntas de la sección 13 que
+> dicen "se decide jugando M2" siguen sin respuesta, y hasta que la tengan el hito
+> no está cerrado.
+>
+> **El menú de pausa (Escape) es de M8 y se ha adelantado.** Cuesta una tarde y
+> sin él no se puede probar nada sin matar el proceso.
+
 ## 12. Riesgos
 
 | Riesgo | Cuándo se ve | Qué hacemos |
@@ -307,9 +326,10 @@ Si el juego no es divertido en cajas grises, no lo va a arreglar una textura.
 ## 13. Decisiones abiertas
 
 - ¿La antorcha se consume con el tiempo o es permanente?
-- ¿Se ven las manos y el arma, o solo el arco del golpe? En M2 solo se ve el
-  arco, que es lo que hace falta para leer el combate. Modelar unos brazos es
-  trabajo de M7 y decidirlo antes sería adelantar arte.
+- ~~¿Se ven las manos y el arma, o solo el arco del golpe?~~ **Decidido.** Se ve
+  el arma y un puño agarrándola (`ARTE.md` §5 ter). El brazo entero sigue siendo
+  trabajo de M7; lo que se adelantó fue la mano, que es lo que quita la sensación
+  de arma flotando sin que haya que animar un cuerpo.
 - ¿Cuántas pociones se pueden guardar en el alijo?
 - **En M2 la antorcha sale gratis.** Ocupa la ranura secundaria, pero como el
   escudo todavía no existe como objeto, no renuncias a nada por llevarla. La

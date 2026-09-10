@@ -98,9 +98,6 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	/// <summary>Se cuenta desde que empieza la esquiva: puedes esquivar cada 2 s.</summary>
 	[Export] public float DashCooldown { get; set; } = 2.0f;
 
-	[ExportSubgroup("Muerte")]
-	[Export] public float RestartDelay { get; set; } = 2.0f;
-
 	private Node3D _visual;
 	private Node3D _head;
 	private MeleeHitbox _hitbox;
@@ -216,14 +213,8 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (@event.IsActionPressed("ui_cancel"))
-		{
-			Input.MouseMode = Input.MouseMode == Input.MouseModeEnum.Captured
-				? Input.MouseModeEnum.Visible
-				: Input.MouseModeEnum.Captured;
-			return;
-		}
-
+		// Escape no se toca aquí: lo lleva el menú de pausa, que es quien sabe si
+		// hay que soltar el ratón o volver a capturarlo.
 		if (@event is InputEventMouseMotion motion && Input.MouseMode == Input.MouseModeEnum.Captured)
 		{
 			_yaw -= motion.Relative.X * MouseSensitivity;
@@ -637,6 +628,11 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		return angle <= BlockArcDegrees * 0.5f ? amount * BlockDamageScale : amount;
 	}
 
+	/// <summary>
+	/// Se queda quieto y suelta todo lo que tuviera empezado. Contar la muerte y
+	/// reiniciar es cosa de <see cref="Ui.DeathScreen"/>: quien sabe cuándo se ha
+	/// terminado de contar es quien la está contando.
+	/// </summary>
 	private void OnDied()
 	{
 		_dead = true;
@@ -644,10 +640,5 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		_blocking = false;
 		_dashTimer = 0.0f;
 		_hitbox.Close();
-		Input.MouseMode = Input.MouseModeEnum.Visible;
-		GD.Print("El jugador ha muerto. Reiniciando la sala.");
-
-		SceneTreeTimer timer = GetTree().CreateTimer(RestartDelay);
-		timer.Timeout += () => GetTree().ReloadCurrentScene();
 	}
 }
