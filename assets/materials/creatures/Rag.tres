@@ -1,0 +1,27 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/rag.gdshader" id="1_rag"]
+
+[resource]
+resource_name = "Rag"
+shader = ExtResource("1_rag")
+shader_parameter/cloth_pale = Color(0.31, 0.255, 0.175, 1)
+shader_parameter/cloth_deep = Color(0.115, 0.1, 0.078, 1)
+shader_parameter/rot_color = Color(0.155, 0.15, 0.105, 1)
+shader_parameter/rot_amount = 0.6
+shader_parameter/hem_grime = 0.45
+shader_parameter/tear_start = 0.3
+shader_parameter/tear_bite = 0.9
+shader_parameter/tear_teeth = 4.0
+shader_parameter/tear_steps = 18.0
+shader_parameter/holes = 0.32
+shader_parameter/sway_hz = 0.55
+shader_parameter/sway_amount = 0.035
+shader_parameter/texels_per_meter = 150.0
+shader_parameter/color_levels = 10.0
+shader_parameter/dither_amount = 0.3
+shader_parameter/vertex_grid = 0.006
+shader_parameter/light_levels = 4.0
+shader_parameter/light_dither = 0.9
+shader_parameter/light_wrap = 0.6
+shader_parameter/light_knee = 0.33

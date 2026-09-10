@@ -1,24 +1,30 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://qouh5k0iwg52"]
 
-[ext_resource type="Shader" path="res://assets/shaders/bone.gdshader" id="1_bone"]
+[ext_resource type="Shader" uid="uid://duspuj7old32x" path="res://assets/shaders/bone.gdshader" id="1_bone"]
 
 [resource]
 resource_name = "Skull"
+render_priority = 0
 shader = ExtResource("1_bone")
-shader_parameter/bone_pale = Color(0.55, 0.522, 0.442, 1)
-shader_parameter/bone_deep = Color(0.18, 0.158, 0.115, 1)
+shader_parameter/bone_pale = Color(0.48, 0.45, 0.362, 1)
+shader_parameter/bone_deep = Color(0.155, 0.132, 0.092, 1)
 shader_parameter/stain_color = Color(0.135, 0.095, 0.05, 1)
 shader_parameter/stain_amount = 0.68
 shader_parameter/grain_axis = Vector3(0, 0, 1)
 shader_parameter/grain_stretch = 2.5
 shader_parameter/grain_amount = 0.22
+shader_parameter/age_spread = 0.28
 shader_parameter/texels_per_meter = 380.0
 shader_parameter/color_levels = 11.0
 shader_parameter/dither_amount = 1.0
 shader_parameter/facet_amount = 0.7
 shader_parameter/vertex_grid = 0.006
+shader_parameter/light_levels = 5.0
+shader_parameter/light_dither = 0.9
+shader_parameter/light_wrap = 0.35
+shader_parameter/light_knee = 0.33
 shader_parameter/rim_power = 2.2
 shader_parameter/rim_strength = 1.0
 shader_parameter/ghost_rim = 0.04
 shader_parameter/ghost_tint = Color(0.38, 0.42, 0.46, 1)
-shader_parameter/roughness_base = 0.72
+shader_parameter/roughness_base = 0.76

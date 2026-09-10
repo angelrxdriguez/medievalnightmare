@@ -18,6 +18,12 @@ const SPOTS := [
 
 
 func _ready() -> void:
+	# Sin vsync. Con el sincronismo puesto, cualquier maquina que llegue holgada
+	# marca 60 clavados en los siete encuadres y la medida no dice nada: no se ve
+	# lo que cuesta un cambio hasta que ya es tarde y baja de 60.
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	Engine.max_fps = 0
+
 	add_child(ROOM.instantiate())
 	call_deferred("_run")
 
@@ -33,11 +39,14 @@ func _run() -> void:
 		player.global_position = spot[0]
 		head.rotation = Vector3(-0.05, spot[1], 0)
 		await _frames(30)
-		var total := 0.0
-		for i in 40:
-			await get_tree().process_frame
-			total += Engine.get_frames_per_second()
-		var fps := total / 40.0
+
+		# Se cronometran 120 fotogramas y se divide, en vez de promediar
+		# `get_frames_per_second()`: ese contador se actualiza una vez por segundo, asi
+		# que muestreandolo 40 veces seguidas se lee 40 veces el mismo numero y los
+		# siete encuadres salen identicos.
+		var start := Time.get_ticks_usec()
+		await _frames(120)
+		var fps := 120.0 * 1000000.0 / float(Time.get_ticks_usec() - start)
 		low = min(low, fps)
 		high = max(high, fps)
 		print("encuadre %s: %.1f fps" % [spot[0], fps])

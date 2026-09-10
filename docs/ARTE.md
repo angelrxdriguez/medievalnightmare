@@ -7,17 +7,17 @@
 > lo que decide si el juego sigue es si se puede perder una sala con tres
 > esqueletos, no cómo se ve.
 >
-> Lo que sí sirve de aquí: la paleta, los números de iluminación y el
-> presupuesto de rendimiento medido. Eso se conserva aunque el arte final se
-> rehaga entero en M7.
+> Lo que sí sirve de aquí: la paleta, los números de iluminación, el presupuesto
+> de rendimiento medido y la RECETA del esqueleto (§5). Eso se conserva aunque el
+> arte final se rehaga entero en M7.
 
 ---
 
 ## 1. La regla
 
 **Nada de imágenes.** No hay un solo PNG en el proyecto y no lo va a haber
-hasta M7. Toda la textura sale de seis shaders procedurales —piedra, hueso,
-hierro, llama, acero y mango— sobre una caja de herramientas común
+hasta M7. Toda la textura sale de siete shaders procedurales —piedra, hueso,
+hierro, llama, acero, mango y tela— sobre una caja de herramientas común
 (`assets/shaders/retro.gdshaderinc`). Es más barato de
 mantener, no tiene tiling visible, se ajusta cambiando un número, y sobre todo:
 no crea una biblioteca de assets que haya que rehacer cuando cambie el estilo.
@@ -40,6 +40,8 @@ Es la diferencia entre "procedural moderno" y "esto lo pintó alguien a mano".
 | Hueso | 320 | pieza de 6 cm: a 200 le caben doce píxeles y cada uno se ve como un ladrillo |
 | Cráneo | 380 | — |
 | Hierro (reja, antorchas) | 180 | — |
+| Chapa (yelmo, hombrera, cinturón) | 95 | pieza grande y lisa: más densidad la vuelve sal y pimienta |
+| Harapo | 150 | la trama va con el paño, no con el mundo |
 | Acero (armas del jugador) | 300 | ocupa un cuarto de la pantalla: pide más densidad |
 | Madera y cuero | 260 – 380 | — |
 
@@ -103,7 +105,8 @@ oposición y por eso **no hay ninguna fuente de luz blanca**.
 | Ambiente | `0.26, 0.33, 0.50` a 0.06 | lo justo para que el negro no sea un agujero |
 | Niebla | `0.05, 0.058, 0.082` | gris azulado, nunca gris neutro |
 | Piedra | `0.36, 0.35, 0.33` a `0.15, 0.14, 0.13` | — |
-| Hueso | `0.50, 0.48, 0.41` a `0.20, 0.18, 0.13` | — |
+| Hueso | `0.44, 0.41, 0.34` a `0.18, 0.15, 0.11` | bajó un 12 % y se fue a cálido cuando se midió EN LA SALA: con seis antorchas sumando, el hueso claro salía blanco de plástico contra la piedra |
+| Tela podrida | `0.31, 0.26, 0.18` a `0.12, 0.10, 0.08` | siempre por debajo del hueso: si compite, se lleva la mirada el faldón |
 | Óxido | `0.42, 0.20, 0.08` | — |
 
 ## 4. La regla de la iluminación
@@ -134,34 +137,117 @@ esto es una sala oscura; con ella es una mazmorra.
 
 ## 5. Los enemigos
 
-El esqueleto pasó de cápsula con nariz a 24 piezas: cráneo, mandíbula, columna,
-cuatro costillas de toro, esternón, clavícula, húmeros, antebrazos, manos,
-pelvis, fémures, tibias, pies y un machete oxidado.
+El esqueleto pasó de cápsula con nariz a 24 piezas, y de 24 a 47. Lo segundo no
+fue añadir detalle: fue cambiar tres cosas que ninguna cantidad de textura
+arregla —las proporciones, la caja torácica y la cara— y ponerle encima lo poco
+que hace falta para que se lea como un guerrero muerto y no como una lámina de
+anatomía.
 
-Lo que lo hace legible en una sala a oscuras no es el detalle, son dos cosas:
+**No se buscó realismo y se rechazó a propósito.** Un cráneo con arcos
+cigomáticos y treinta y dos dientes en un bicho que vas a ver a cuatro metros y
+medio segundo es trabajo tirado, y encima delata la época equivocada: lo que
+hacía 2001 era elegir CUATRO formas y exagerarlas. Aquí las cuatro son la
+cuenca, la costilla, el faldón y el yelmo.
 
-- **La silueta.** Cuatro costillas huecas y unas piernas finísimas se reconocen
-  a quince metros con un solo píxel de ancho. Una cápsula no.
+### Lo que lo cambió, por orden de lo que más dio
+
+**Las proporciones.** Antes era una figura de 1,80 con medidas de persona: piernas
+largas, hombros estrechos, cráneo pequeño. Se leía como un maniquí. Ahora las
+piernas ocupan el 45 % de la altura en vez del 48, los hombros pasaron de 37 a
+45 cm, el cráneo creció un 15 % y el torso va inclinado 9° hacia delante con la
+cabeza deshaciendo la inclinación por debajo. El bicho pasa de pasear a ir a por
+ti sin haber tocado una sola animación.
+
+**La caja torácica.** Cuatro aros horizontales se leen como aros: de frente son
+cuatro barras y de lado son cuatro circunferencias, y en las dos vistas parece
+una persiana. Ahora son cinco, giradas 15° para que el frente CAIGA —que es
+hacia donde van las costillas de verdad— y aplastadas al 72 % en profundidad. La
+misma pieza, dos números distintos, y de pronto hay un pecho.
+
+**Las cuencas.** Eran dos esferas encendidas pegadas a la cara. Ahora son dos
+esferas DENTRO de un aro, o sea dentro de un agujero, y el agujero se lee incluso
+apagado. Es la diferencia entre un bicho con dos luces y una calavera.
+
+### El equipo, que es lo que lo hace medieval y no un esqueleto de museo
+
+Tres piezas de chapa oxidada y cuatro paños. Ninguna es armadura: es lo que no se
+llevó el que lo despojó.
+
+| Pieza | Qué hace por la silueta |
+|---|---|
+| Yelmo | Le da una línea recta y oscura arriba. Un cráneo pelado es una bola; con el casquete hay una cabeza |
+| Barrote nasal | Parte la cara en dos. A cuatro metros ya no es un barrote, es la sombra que separa las dos cuencas |
+| Hombrera | Ensancha un hombro y solo uno. La asimetría es lo que hace que no parezca un icono |
+| Faldón de harapos | Llena el vacío entre la pelvis y las rodillas, que es donde se le veía el truco |
+
+El faldón trajo el séptimo shader (`rag.gdshader`) y trajo lo mejor de todo el
+pase: **el recorte de un bit**. El bajo del harapo no es una línea, se muerde con
+ruido evaluado en una rejilla GRUESA, y cada píxel está o no está. Es lo único
+que sabía hacer la consola —no tenía alfa por píxel— y un borde dentado de
+píxeles cuadrados se reconoce como de la época antes de que te dé tiempo a mirar
+nada más. Con transparencia de verdad esto sería una cortina de un juego de
+ahora.
+
+### La semilla por pieza
+
+Cuarenta y siete huesos con el mismo material y la misma fórmula son cuarenta y
+siete veces el mismo hueso, y el ojo lo pilla enseguida: se lee como una textura
+repetida y no como un montón de huesos. Los tres shaders de criatura llevan un
+`instance uniform piece_seed` que `SkeletonRig` reparte al arrancar, sacado del
+NOMBRE del nodo —así el fémur izquierdo tiene siempre la misma mancha— más un
+desplazamiento por bicho, que es lo que evita que tres esqueletos de la misma
+sala sean tres copias.
+
+### La luz a escalones
+
+`bone.gdshader` y `rag.gdshader` se quedan con la luz (`light()`), y sale a
+cuenta por dos cosas:
+
+- **El techo.** Una antorcha a metro y medio le mete al hueso cinco veces la
+  energía que necesita y el bicho se va a blanco puro justo cuando lo tienes
+  encima. Estaba anotado como fallo pendiente. La salida fácil era bajar
+  `bone_pale`, que arregla el primer plano y deja apagado el resto de la sala; lo
+  que hay que comprimir es la ENERGÍA: `e / (1 + e·k)` deja la luz baja como
+  estaba y aplasta la alta contra un tope. Es lo que hacía una tabla de luz de
+  ocho bits.
+- **Los escalones.** Un degradado suave sobre un modelo de cuarenta caras es lo
+  que más delata que esto es de ahora. Cinco niveles, deshechos con el MISMO
+  Bayer que la paleta —si no, vuelven las manchas— y el hueso se sombrea como se
+  pintaba entonces.
+
+La envolvente (`light_wrap`, 0,35) no es adorno: con el terminador duro, un
+esqueleto iluminado de lado se parte en dos mitades y la oscura desaparece contra
+el fondo, que es justo lo que no se quiere de un bicho cuya lectura es la
+silueta.
+
+### Lo que sigue haciéndolo legible
+
+Sigue sin ser el detalle, y siguen siendo dos cosas:
+
+- **La silueta.** Cinco costillas huecas, un faldón oscuro y unas piernas
+  finísimas se reconocen a quince metros con un solo píxel de ancho. Una cápsula
+  no.
 - **Las cuencas encendidas.** Son la telegrafía (§6) y además la única parte del
   bicho que se ve antes de que le llegue la luz de tu antorcha.
 
-El shader de hueso lleva luz de borde (`rim`): con la niebla detrás, el canto
-del cráneo recoge un hilo de luz y sabes que hay algo ahí sin verlo del todo. Es
-la lectura que se busca: te enteras de que no estás solo antes de poder contar
+El shader de hueso lleva luz de borde (`rim`): con la niebla detrás, el canto del
+cráneo recoge un hilo de luz y sabes que hay algo ahí sin verlo del todo. Es la
+lectura que se busca: te enteras de que no estás solo antes de poder contar
 cuántos son.
 
-Las cajas se fueron. Pelvis, mandíbula, manos, pies, esternón y omóplato eran
-`BoxMesh` y se leían como cubos: ahora son prismas y cilindros de cinco o seis
-lados, y los huesos largos pasaron de cápsula a cilindro con salida cónica. La
-silueta no cambia; lo que cambia es que a tres metros se le ven las caras.
+Las cajas se fueron hace dos pases. Pelvis, mandíbula, manos, pies, esternón y
+omóplato eran `BoxMesh` y se leían como cubos: son prismas y cilindros de cinco o
+seis lados, y los huesos largos pasaron de cápsula a cilindro con salida cónica.
+Los pies se dieron la vuelta en este pase: el prisma apuntaba con el vértice
+hacia DELANTE y de frente eran dos púas. Un pie se estrecha por el talón.
 
 ### El paso
 
 Las veinticuatro piezas colgaban planas de `Visual`. Ahora cuelgan de PIVOTES en
-las articulaciones —cadera, rodilla, tobillo, hombro, codo, cuello— y quien las
-mueve es `SkeletonRig`. No hay `Skeleton3D` ni pesos de vértice y no hacen
-falta: un fémur girado sobre su propio centro se hunde en la pelvis; girado
-sobre la cadera, anda.
+las articulaciones —cadera, rodilla, tobillo, hombro, codo, cuello, mandíbula— y
+quien las mueve es `SkeletonRig`. No hay `Skeleton3D` ni pesos de vértice y no
+hacen falta: un fémur girado sobre su propio centro se hunde en la pelvis;
+girado sobre la cadera, anda.
 
 Un ciclo de marcha son cuatro cosas y siempre las mismas:
 
@@ -178,9 +264,28 @@ Cada uno arranca con una fase distinta: sin eso, tres esqueletos de la misma
 sala andan al paso como un pelotón.
 
 **La pose se escribe a doce fotogramas por segundo.** Es la mitad del efecto: a
-sesenta esto es un esqueleto procedural moderno, a doce es un enemigo de 1999.
-El escalonado va en el momento de ESCRIBIR la pose, no en cada término del
-cálculo; cuantizando término a término sale temblor, no fotogramas.
+sesenta esto es un esqueleto procedural moderno, a doce es un enemigo de 1999. El
+escalonado va en el momento de ESCRIBIR la pose, no en cada término del cálculo;
+cuantizando término a término sale temblor, no fotogramas.
+
+### El golpe y el respingo
+
+La mandíbula cuelga floja —un muerto no aprieta los dientes—, se ABRE durante la
+anticipación y se cierra de golpe en el fotograma en que sale el filo. Es la
+telegrafía de las cuencas contada otra vez con la forma, y sirve para lo mismo:
+por el rabillo del ojo ves que algo se abre antes de distinguir de qué color es.
+
+El torso se echa ATRÁS al levantar el machete y se tira hacia DELANTE al soltarlo.
+Estaba al revés —se inclinaba hacia delante para cargar y se enderezaba al
+golpear— y por eso la anticipación no pesaba: un tajo se carga echándose atrás.
+
+Y encaja los golpes. Un respingo de 0,18 s, que a doce fotogramas por segundo son
+dos y pico: el torso atrás, la cabeza descolgada, la cadera cede un dedo y la
+mandíbula se abre. **No interrumpe el ataque a propósito**: el esqueleto se
+compromete igual que el jugador y un golpe a tiempo no cancela el suyo. Sin esto
+le pegas cuatro veces seguidas y sigue andando hacia ti sin enterarse, y lo que
+lee el jugador no es "es duro" sino "no le he dado", que es lo peor que puede
+pasar en un combate cuyo golpe ligero dura 0,10 s.
 
 ### La muerte
 
@@ -192,10 +297,11 @@ de dibujado.
 Los huesos se **reparentan** conservando su sitio en el mundo —mientras cuelguen
 de la cadera, mover uno mueve a sus hijos, y un montón de huesos no tiene
 hijos— y a partir de ahí cada uno cae, bota una vez y se acuesta. No es física
-del motor: son treinta integraciones de Euler **a doce pasos por segundo**, que
-es lo que hace que se vea el hueso saltar de una posición a la siguiente en vez
-de deslizarse. Lo que estaba más alto se abre más, así que el cráneo rueda y los
-pies se quedan donde estaban.
+del motor: son cuarenta y siete integraciones de Euler **a doce pasos por
+segundo**, que es lo que hace que se vea el hueso saltar de una posición a la
+siguiente en vez de deslizarse. Lo que estaba más alto se abre más, así que el
+cráneo rueda y los pies se quedan donde estaban. El yelmo se le cae y rueda
+aparte, que es de las cosas que más se miran del montón.
 
 El montón se queda para siempre (`CorpseSeconds` a cero). Un esqueleto que se
 desvanece deja la sala igual que estaba y no cuenta nada; los huesos por el
@@ -332,6 +438,42 @@ El shader de piedra **no** era el cuello de botella: optimizarlo de 430 a 56
 hashes por píxel apenas movió la cifra. Lo caro eran las sombras y los efectos de
 pantalla. Conviene medir antes de optimizar.
 
+### El esqueleto de 47 piezas
+
+No se ha podido medir contra las cifras de arriba: se hizo en otra máquina, con
+GPU dedicada, y ahí la sala entera va sobrada. Lo que sí se hizo fue el A/B en
+esa máquina, con la misma herramienta, en la misma sesión y guardando el trabajo
+en un `stash` para medir el esqueleto viejo:
+
+| Esqueleto | fps (GPU dedicada, sin vsync) |
+|---|---|
+| 24 piezas | 548 – 913 |
+| **47 piezas** | **530 – 984** |
+
+Los rangos se solapan encuadre a encuadre y en tres de los siete el nuevo sale
+POR ENCIMA del viejo. Y hay algo peor para la medida: repitiendo la misma toma
+con el MISMO binario un rato después salió 858 – 1366. **La variación entre
+ejecuciones es varias veces mayor que la diferencia entre los dos esqueletos**,
+así que lo único que se puede afirmar es que veintitrés mallas más por bicho no
+se ven en esta máquina.
+
+Eso no dice que sea gratis en la Intel integrada —ahí lo que manda es el coste de
+enviar dibujados, y con tres esqueletos y seis antorchas con sombra son 33 × 3 × 6
+pasadas solo de sombra— sino que **está sin medir donde importa y hay que volver
+a medirlo antes de dar el presupuesto por bueno**.
+
+Lo que sí se hizo, por si acaso: las catorce piezas de detalle —cuencas, dientes,
+pómulos, vértebras, nariz, pomo y los cuatro harapos— llevan `cast_shadow`
+apagado. Están metidas dentro de piezas más grandes o pegadas a ellas y su sombra
+no aporta nada, pero se pagarían seis veces cada una.
+
+> La herramienta mentía. `tools/Perf.gd` promediaba
+> `Engine.get_frames_per_second()` cuarenta veces seguidas, y ese contador se
+> actualiza UNA VEZ POR SEGUNDO: a 500 fps se leía cuarenta veces el mismo número
+> y los siete encuadres salían idénticos hasta el decimal. Ahora cronometra 120
+> fotogramas con `Time.get_ticks_usec()` y apaga el vsync, sin el cual cualquier
+> máquina holgada marca 60 clavados y la medida no dice nada.
+
 ## 8. Trampas encontradas
 
 - **`Transform3D` en `.tscn` se serializa por FILAS de la base, no por
@@ -362,16 +504,40 @@ pantalla. Conviene medir antes de optimizar.
   el ruido fino deja de ser detalle y pasa a ser centelleo. Se mide con
   `fwidth()` y se apaga el detalle, dejando un suelo del 30 % para que las
   superficies muy rasantes no se queden lisas.
+- **En `light()` no se multiplica por `ALBEDO`, y `LIGHT_COLOR` trae un PI de
+  más.** El motor multiplica `DIFFUSE_LIGHT` por el albedo DESPUÉS de llamar a la
+  función, así que hacerlo también dentro lo eleva al cuadrado; y `LIGHT_COLOR`
+  llega como color × energía × PI porque el 1/PI vive dentro de las BRDF físicas.
+  Con las dos juntas el esqueleto salió a un tercio de la luz que le tocaba y
+  parecía que la culpa era del techo de energía recién estrenado.
+- **Las cuencas se quedan flotando al morir.** No son huesos: son una fuente de
+  luz y no se reparentan con el montón, así que apagarlas las deja donde estaba
+  la cabeza. Apagadas siguen siendo dos esferas negras a metro y medio del suelo.
+  Al terminar de apagarse hay que ESCONDER el nodo, que además se lleva la luz.
+- **La condición de reposo del derrumbe no se cumplía nunca.** Comparaba la
+  velocidad de llegada al suelo contra medio metro por segundo, y esa velocidad
+  ya lleva sumada la gravedad del paso: a doce pasos por segundo son 1,08 m/s de
+  caída por paso, así que la pieza no se posaba jamás. No se veía —quedaba
+  clavada a su altura de reposo dando botes de un milímetro— pero como no llegaba
+  a posarse tampoco llegaba a ACOSTARSE, y una docena de huesos se quedaba en el
+  montón con la orientación con la que había caído, incluido el machete de pie.
+  Se mira lo que devuelve el suelo (`CollapseSettle`), no lo que traía la pieza.
+  Lo cazó una comprobación de tres líneas en `tools/Rig.gd` que lista las piezas
+  que se han quedado de canto, y ahí sigue.
+- **`QuadMesh` mira a +Z.** Los cuatro paños del faldón se colocaron alrededor de
+  la cadera sin girarlos y los tres que no daban a +Z quedaron iluminados por
+  detrás, o sea negros. No hace falta tocar `FRONT_FACING`: se giran los paños
+  para que su normal mire hacia fuera y se acabó.
 
 ## 9. Herramientas
 
-Dos escenas de desarrollo que no forman parte del juego y se pueden borrar sin
+Tres escenas de desarrollo que no forman parte del juego y se pueden borrar sin
 que se entere nadie. Están porque afinar una pose a ciegas es imposible y con
 esto se ve el resultado en veinte segundos.
 
 | Herramienta | Qué hace |
 |---|---|
-| `godot --path . tools/Rig.tscn` | Un esqueleto solo, con luz plana y cámara de perfil que lo sigue. Guarda el ciclo de marcha, el ataque y el derrumbe fotograma a fotograma en `user://` |
+| `godot --path . tools/Rig.tscn` | Un esqueleto solo. Hace dos RETRATOS de siete tomas —cuatro lados, primer plano de la cabeza, torso y a once metros—, uno con luz de estudio y otro con la luz del juego, y luego el ciclo de marcha, el ataque, el respingo y el derrumbe. Todo a `user://` |
 | `godot --path . tools/Capture.tscn` | La sala de pruebas de verdad: recorre las cuatro armas golpeando, bloquea, esquiva y mata a un esqueleto, guardando capturas en `user://` |
 | `godot --path . tools/Perf.tscn` | Los siete encuadres de §7 y el rango de fps |
 
@@ -387,11 +553,16 @@ real, así que sin frenar el reloj entre captura y captura se va medio golpe.
   hay ni una muestra.
 - **El arma atraviesa las paredes.** Lo estándar es un segundo `Viewport` con
   su propia cámara; la antorcha ya tenía el mismo problema.
-- **El esqueleto no reacciona al golpe.** Anda, ataca y se cae a trozos, pero
-  entre medias encaja los impactos sin inmutarse. Un respingo de dos fotogramas
-  es lo que dice si le has dado.
 - **El interior del hueco del techo se quema.** La cara de fondo de la reja sale
   a blanco puro. Se arregla con un material propio más oscuro para el brocal.
-- **El hueso se quema al lado de la antorcha.** A menos de metro y medio el
-  esqueleto sale a blanco. O baja `bone_pale`, o la antorcha de mano necesita
-  una caída más agresiva de cerca.
+- **El fémur atraviesa el harapo al andar.** El faldón cuelga de la cadera y no
+  sabe nada de las piernas, así que en la zancada larga el muslo lo cruza. Se
+  puede tapar estrechando los paños o darle al paño delantero un giro con la
+  fase del paso; de momento se deja, que atravesarse era rutina en la época.
+- **El presupuesto de §7 está sin medir con el bicho nuevo.** El A/B se hizo en
+  una máquina con GPU dedicada y ahí no se nota; hace falta repetirlo en la
+  Intel integrada antes de dar por bueno el rango de 52 – 72 fps.
+- **Los otros dos enemigos no existen.** El ogro y el jefe siguen siendo una
+  línea en `DISENO.md`. Lo de aquí —proporciones exageradas, cuatro formas
+  elegidas, semilla por pieza y luz a escalones— es la receta y debería
+  aplicarse tal cual cuando les toque, no reinventarse.

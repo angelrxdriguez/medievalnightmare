@@ -46,12 +46,19 @@ uniform float facet_amount : hint_range(0.0, 1.0) = 0.0;
 /// que es lo que quiere la reja del techo y lo que NO quiere un arma en la mano.
 uniform float vertex_grid : hint_range(0.0, 0.03) = 0.0;
 
+/// La semilla de esta pieza, de 0 a 1. La reparte quien la lleve puesta: en el
+/// esqueleto, `SkeletonRig`. Sin ella, el yelmo y la hombrera del mismo bicho
+/// —dos piezas del mismo material y parecido tamaño— se oxidan calcadas.
+instance uniform float piece_seed = 0.0;
+
 varying vec3 local_pos;
 varying vec3 local_nrm;
 
 // x = máscara de óxido (0 chapa, 1 óxido), y = picado fino.
 vec2 corrosion(vec2 p)
 {
+	p += vec2(piece_seed * 8.3, piece_seed * 19.7);
+
 	float patches = fbm(p * 5.5);
 	float mask = smoothstep(1.0 - rust_amount - rust_edge, 1.0 - rust_amount + rust_edge, patches);
 	float pits = fbm(p * 34.0);

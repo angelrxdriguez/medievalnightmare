@@ -72,6 +72,7 @@ public partial class SkeletonAI : CharacterBody3D
 		// cráneo se mueve de sitio cada vez que se retoca el esqueleto.
 		_marker = _visual.FindChild("Telegraph", true, false) as TelegraphMarker;
 		_health = GetNode<Health>("Health");
+		_health.Damaged += OnDamaged;
 		_health.Died += OnDied;
 
 		_gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle() * 2.0f;
@@ -180,6 +181,19 @@ public partial class SkeletonAI : CharacterBody3D
 		Vector3 rotation = _visual.Rotation;
 		rotation.Y = Mathf.LerpAngle(rotation.Y, targetYaw, weight);
 		_visual.Rotation = rotation;
+	}
+
+	/// <summary>
+	/// Le han dado. Lo único que hace es pedirle el respingo al esqueleto: el ataque
+	/// que tuviera empezado sigue saliendo, porque el bicho se compromete igual que
+	/// el jugador y un golpe a tiempo no cancela el suyo.
+	///
+	/// Un enemigo que encaja los golpes sin inmutarse no se lee como duro, se lee
+	/// como que no le has dado.
+	/// </summary>
+	private void OnDamaged(float amount, float remaining)
+	{
+		_rig?.Flinch();
 	}
 
 	/// <summary>

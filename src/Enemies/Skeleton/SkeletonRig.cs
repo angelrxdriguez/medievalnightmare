@@ -79,6 +79,25 @@ public partial class SkeletonRig : Node3D
 	/// <summary>Lo que se gira el torso para acompañar el golpe.</summary>
 	[Export] public float StrikeTwistDegrees { get; set; } = 34.0f;
 
+	[ExportGroup("Mandibula")]
+
+	/// <summary>Lo que cuelga la mandíbula en reposo. Un muerto no aprieta los dientes.</summary>
+	[Export] public float IdleGapeDegrees { get; set; } = 5.0f;
+
+	/// <summary>Lo que se abre durante la anticipación. Se cierra de golpe al soltar el tajo.</summary>
+	[Export] public float GapeDegrees { get; set; } = 26.0f;
+
+	[ExportGroup("Impacto")]
+
+	/// <summary>
+	/// Lo que dura el respingo al encajar un golpe. Dos fotogramas de los doce: lo
+	/// justo para que se vea que le has dado y no tanto como para interrumpirle el
+	/// ataque, que sigue saliendo. El bicho no se detiene, se ESTREMECE.
+	/// </summary>
+	[Export] public float FlinchSeconds { get; set; } = 0.18f;
+
+	[Export] public float FlinchDegrees { get; set; } = 12.0f;
+
 	[ExportGroup("Muerte")]
 
 	/// <summary>Lo que se abren los huesos al soltarse, en metros por segundo.</summary>
@@ -92,6 +111,13 @@ public partial class SkeletonRig : Node3D
 
 	/// <summary>Lo que devuelve el suelo. Un hueso no es una pelota: bota poco y una vez.</summary>
 	[Export(PropertyHint.Range, "0,0.9,0.05")] public float CollapseBounce { get; set; } = 0.25f;
+
+	/// <summary>
+	/// Por debajo de este rebote, en metros por segundo, la pieza deja de botar y se
+	/// acuesta. Es lo que decide cuántos botes da un hueso: a 0,6 y con un rebote
+	/// del 25 %, uno o dos.
+	/// </summary>
+	[Export] public float CollapseSettle { get; set; } = 0.6f;
 
 	[ExportGroup("Retro")]
 
@@ -108,6 +134,7 @@ public partial class SkeletonRig : Node3D
 	private Node3D _hips;
 	private Node3D _torso;
 	private Node3D _head;
+	private Node3D _jaw;
 	private Node3D _shoulderL;
 	private Node3D _shoulderR;
 	private Node3D _elbowL;
@@ -119,6 +146,9 @@ public partial class SkeletonRig : Node3D
 	private Node3D _ankleL;
 	private Node3D _ankleR;
 
+	/// <summary>El nombre del `instance uniform` que lleva la semilla en los tres shaders de criatura.</summary>
+	private static readonly StringName PieceSeed = "piece_seed";
+
 	private readonly Dictionary<Node3D, Transform3D> _rest = new();
 	private readonly List<Bone> _debris = new();
 
@@ -128,6 +158,7 @@ public partial class SkeletonRig : Node3D
 	private float _amplitude;
 	private float _stepTimer;
 	private float _collapseTimer;
+	private float _flinch;
 	private CombatPhase _phase = CombatPhase.Idle;
 	private float _progress;
 	private bool _collapsed;
@@ -160,6 +191,7 @@ public partial class SkeletonRig : Node3D
 		_hips = GetNode<Node3D>("Hips");
 		_torso = GetNode<Node3D>("Hips/Torso");
 		_head = GetNode<Node3D>("Hips/Torso/Head");
+		_jaw = GetNode<Node3D>("Hips/Torso/Head/JawPivot");
 		_shoulderL = GetNode<Node3D>("Hips/Torso/ShoulderL");
 		_shoulderR = GetNode<Node3D>("Hips/Torso/ShoulderR");
 		_elbowL = GetNode<Node3D>("Hips/Torso/ShoulderL/ElbowL");
@@ -180,6 +212,8 @@ public partial class SkeletonRig : Node3D
 		// esqueletos de la misma sala andan al paso como un pelotón.
 		_stride = GD.Randf() * Mathf.Tau;
 		_idleTime = GD.Randf() * 10.0f;
+
+		SeedPieces();
 	}
 
 	public override void _Process(double delta)
@@ -200,6 +234,7 @@ public partial class SkeletonRig : Node3D
 
 		_stride += speed * dt / Mathf.Max(StrideMeters, 0.05f) * Mathf.Tau;
 		_idleTime += dt;
+		_flinch = Mathf.Max(0.0f, _flinch - dt);
 
 		// La amplitud entra y sale amortiguada. Sin esto, arrancar a andar levanta
 		// las dos piernas de golpe en un fotograma.
@@ -222,6 +257,28 @@ public partial class SkeletonRig : Node3D
 	{
 		_phase = phase;
 		_progress = progress;
+	}
+
+	/// <summary>
+	/// Le han dado. Un respingo de dos fotogramas: el torso se va hacia atrás, la
+	/// cabeza se descuelga y la cadera cede un dedo.
+	///
+	/// Es lo único que separa un enemigo de un saco. Sin esto le pegas cuatro veces
+	/// seguidas y el bicho sigue andando hacia ti sin enterarse, y lo que lee el
+	/// jugador no es "es duro" sino "no le he dado", que es lo peor que puede pasar
+	/// en un combate cuyo golpe ligero dura 0,10 s.
+	///
+	/// NO interrumpe el ataque a propósito: el esqueleto se compromete igual que el
+	/// jugador y un golpe a tiempo no cancela el suyo. Solo se estremece.
+	/// </summary>
+	public void Flinch()
+	{
+		if (_collapsed)
+		{
+			return;
+		}
+
+		_flinch = FlinchSeconds;
 	}
 
 	/// <summary>
@@ -318,6 +375,13 @@ public partial class SkeletonRig : Node3D
 
 	private void ApplyPose()
 	{
+		// El respingo baja recto de golpe a cero y no se suaviza con nada. Como la
+		// pose se escribe a doce por segundo, esos 0,18 s son dos fotogramas y pico:
+		// se ve el tirón y se ve la vuelta, que es justo lo que hacía la época.
+		float jolt = FlinchSeconds > 0.0f
+			? Mathf.DegToRad(FlinchDegrees) * (_flinch / FlinchSeconds)
+			: 0.0f;
+
 		float swing = Mathf.Sin(_stride) * _amplitude;
 		float opposite = Mathf.Sin(_stride + Mathf.Pi) * _amplitude;
 
@@ -325,7 +389,7 @@ public partial class SkeletonRig : Node3D
 		// el bicho parece que cojea.
 		float bob = -Mathf.Abs(Mathf.Cos(_stride)) * BobAmount * _amplitude;
 
-		Pose(_hips, new Vector3(0.0f, bob, 0.0f), new Vector3(
+		Pose(_hips, new Vector3(0.0f, bob - jolt * 0.06f, jolt * 0.10f), new Vector3(
 			0.0f,
 			0.0f,
 			Mathf.DegToRad(HipRollDegrees) * swing));
@@ -335,21 +399,30 @@ public partial class SkeletonRig : Node3D
 			* (1.0f - _amplitude);
 
 		float twist = Mathf.DegToRad(TorsoTwistDegrees) * opposite;
-		float lean = Mathf.DegToRad(6.0f) * _amplitude;
+		// NEGATIVO: el bicho anda ECHADO HACIA DELANTE. Un esqueleto que camina
+		// erguido parece que pasea; inclinado parece que va a por ti, y no cuesta
+		// nada porque la cabeza lo deshace justo debajo y sigue mirando al frente.
+		float lean = Mathf.DegToRad(-6.0f) * _amplitude;
 
 		(float armL, float armR, float strikeElbow, float strikeTwist, float strikeLean) = StrikePose();
 
 		Pose(_torso, Vector3.Zero, new Vector3(
-			lean + strikeLean,
+			lean + strikeLean + jolt,
 			twist + Mathf.DegToRad(StrikeTwistDegrees) * strikeTwist,
 			idle));
 
 		// La cabeza va al revés que el torso: mira al frente mientras el cuerpo
 		// gira debajo. Es lo que hace que el bicho parezca que te está mirando.
 		Pose(_head, Vector3.Zero, new Vector3(
-			-lean * 0.5f,
+			-lean * 0.5f + jolt,
 			-twist * 0.6f,
 			idle * 0.5f));
+
+		// La mandíbula. Cuelga floja, se abre durante la anticipación y se cierra de
+		// golpe con el tajo. Es la telegrafía de las cuencas contada otra vez con la
+		// forma, y sirve para lo mismo: por el rabillo del ojo se ve que se ABRE algo
+		// antes de distinguir de qué color es. Y al golpear, el chasquido.
+		Pose(_jaw, Vector3.Zero, new Vector3(-(Mathf.DegToRad(Gape()) + jolt * 0.8f), 0.0f, 0.0f));
 
 		// Piernas. La rodilla solo dobla en la vuelta: doblarla en el apoyo es lo
 		// que hace que un ciclo de marcha parezca que el bicho se hunde en el suelo.
@@ -409,7 +482,7 @@ public partial class SkeletonRig : Node3D
 					windup * w,
 					1.0f * w,
 					-w,
-					Mathf.DegToRad(-8.0f) * w);
+					Mathf.DegToRad(9.0f) * w);
 
 			case CombatPhase.Active:
 				// El codo se estira de golpe al final del arco. Es el latigazo: sin
@@ -421,16 +494,73 @@ public partial class SkeletonRig : Node3D
 					Mathf.Lerp(windup, strike, t),
 					Mathf.Lerp(1.0f, -0.1f, t),
 					Mathf.Lerp(-1.0f, 1.0f, t),
-					Mathf.DegToRad(-8.0f) * (1.0f - t));
+					Mathf.Lerp(Mathf.DegToRad(9.0f), Mathf.DegToRad(-13.0f), t));
 
 			case CombatPhase.Recovery:
 				float r = 1.0f - EaseOut(_progress);
 
-				return (strike * 0.3f * r, strike * r, -0.1f * r, r, 0.0f);
+				return (strike * 0.3f * r, strike * r, -0.1f * r, r, Mathf.DegToRad(-13.0f) * r);
 
 			default:
 				return (0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		}
+	}
+
+	/// <summary>
+	/// Lo que se abre la mandíbula, en grados. Cuelga floja en reposo —un muerto no
+	/// aprieta los dientes—, se abre del todo durante la anticipación y se CIERRA DE
+	/// GOLPE en el fotograma en que sale el filo. Ese cierre es el que se lee como
+	/// mordisco aunque el bicho ataque con un machete.
+	/// </summary>
+	private float Gape()
+	{
+		return _phase switch
+		{
+			CombatPhase.Windup => Mathf.Lerp(IdleGapeDegrees, GapeDegrees, EaseOut(_progress)),
+			CombatPhase.Active => IdleGapeDegrees * 0.2f,
+			CombatPhase.Recovery => Mathf.Lerp(IdleGapeDegrees * 0.2f, IdleGapeDegrees, _progress),
+			_ => IdleGapeDegrees,
+		};
+	}
+
+	/// <summary>
+	/// Le da a cada pieza su semilla, que es lo que hace que cuarenta huesos con el
+	/// mismo material no sean cuarenta veces el mismo hueso. La lee el shader
+	/// (`piece_seed`) para mover el ruido y la edad de cada pieza.
+	///
+	/// Sale del NOMBRE del nodo y no de un contador: así el fémur izquierdo tiene
+	/// siempre la misma mancha entre dos ejecuciones, y si mañana se le añade una
+	/// costilla no se recolocan las manchas de todo el bicho.
+	///
+	/// Encima va un desplazamiento por esqueleto: tres esqueletos en la misma sala
+	/// tienen los mismos huesos y no pueden tener las mismas manchas en los mismos
+	/// sitios, que es lo que los delata como copias.
+	/// </summary>
+	private void SeedPieces()
+	{
+		float offset = GD.Randf();
+
+		List<MeshInstance3D> pieces = new();
+		CollectBones(_hips, pieces);
+
+		foreach (MeshInstance3D piece in pieces)
+		{
+			float seed = Hash(piece.Name.ToString()) + offset;
+			piece.SetInstanceShaderParameter(PieceSeed, seed - Mathf.Floor(seed));
+		}
+	}
+
+	/// <summary>Un número estable entre 0 y 1 sacado del nombre del nodo (FNV-1a).</summary>
+	private static float Hash(string name)
+	{
+		uint h = 2166136261u;
+
+		foreach (char c in name)
+		{
+			h = (h ^ c) * 16777619u;
+		}
+
+		return (h & 0xFFFFFFu) / 16777215.0f;
 	}
 
 	/// <summary>
@@ -499,10 +629,19 @@ public partial class SkeletonRig : Node3D
 			{
 				position.Y = bone.Rest;
 
-				// Un hueso no es una pelota: bota una vez y poco. Por debajo de medio
-				// metro por segundo se queda, que es lo que evita el temblor eterno de
-				// una pieza rebotando a un milímetro del suelo para siempre.
-				if (bone.Velocity.Y > -0.5f)
+				// Un hueso no es una pelota: bota una o dos veces, poco, y se acuesta.
+				//
+				// SE MIRA LO QUE DEVUELVE EL SUELO, NO LO QUE TRAÍA LA PIEZA. Antes se
+				// comparaba la velocidad de llegada contra medio metro por segundo, y esa
+				// velocidad ya lleva sumada la gravedad de ESTE paso: a doce pasos por
+				// segundo son 1,08 m/s de caída por paso, o sea que la condición no se
+				// cumplía NUNCA. El resultado no se veía —la pieza quedaba clavada a su
+				// altura de reposo dando botes de un milímetro— pero como no llegaba a
+				// posarse tampoco llegaba a ACOSTARSE, y media docena de huesos se
+				// quedaban de pie en el montón con la orientación con la que cayeron.
+				float bounce = -bone.Velocity.Y * CollapseBounce;
+
+				if (bounce < CollapseSettle)
 				{
 					bone.Grounded = true;
 					bone.Velocity = Vector3.Zero;
@@ -512,7 +651,7 @@ public partial class SkeletonRig : Node3D
 				{
 					bone.Velocity = new Vector3(
 						bone.Velocity.X * 0.45f,
-						-bone.Velocity.Y * CollapseBounce,
+						bounce,
 						bone.Velocity.Z * 0.45f);
 
 					bone.Spin *= 0.5f;
@@ -558,6 +697,7 @@ public partial class SkeletonRig : Node3D
 		yield return _hips;
 		yield return _torso;
 		yield return _head;
+		yield return _jaw;
 		yield return _shoulderL;
 		yield return _shoulderR;
 		yield return _elbowL;

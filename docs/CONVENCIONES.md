@@ -16,6 +16,12 @@
   texeles cuadrados, tramado, facetado y temblor de vértices— vive en
   `retro.gdshaderinc` y lo incluyen todos: si el temblor de un material no sale
   de ahí, las piezas de un mismo bicho se despegan unas de otras.
+- **Las piezas de una criatura llevan semilla.** Los shaders de hueso, chapa y
+  tela declaran `instance uniform float piece_seed` y quien monta el bicho la
+  reparte pieza a pieza en `_Ready` (ver `SkeletonRig.SeedPieces`). Sin ella,
+  cuarenta huesos con el mismo material son cuarenta veces el mismo hueso y se
+  lee como una textura repetida. Sale del NOMBRE del nodo, no de un contador: así
+  añadir una pieza no recoloca las manchas de todas las demás.
 - Piezas de CSG que se tocan: se entierra una en otra, nunca cara contra cara.
   Dos caras coplanares dejan artefactos.
 - `Transform3D` en `.tscn` va por FILAS de la base. Si escribes una rotación a

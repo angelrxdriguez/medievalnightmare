@@ -104,6 +104,13 @@ public partial class TelegraphMarker : Node3D
 			if (_fade <= 0.0f)
 			{
 				SetProcess(false);
+
+				// Y se esconden. Apagadas siguen siendo dos esferas, y como el cráneo
+				// se ha ido al suelo con el resto del montón, esas dos esferas se
+				// quedan flotando a la altura de la cabeza que ya no está: dos puntos
+				// negros en el aire que se leen como un fallo de dibujado. Esconder el
+				// nodo se lleva también la luz, que es hija suya.
+				Hide();
 			}
 
 			return;
