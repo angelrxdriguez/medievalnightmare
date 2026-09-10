@@ -8,10 +8,15 @@ respuesta por defecto es no.
 
 ## 1. Qué es
 
-Un juego de combate medieval en tercera persona, de fantasía oscura, con
+Un juego de combate medieval en primera persona, de fantasía oscura, con
 gráficos poligonales de principios de los 2000. Bajas a mazmorras a por
 equipo, y cada sala que avanzas aumenta lo que puedes ganar y lo que puedes
 perder. Si mueres, pierdes todo lo que llevabas encima.
+
+**Primera persona.** Golpeas donde miras y solo sabes lo que tienes delante.
+Se probó en tercera persona hasta M1 y la cámara resolvía sola los dos
+problemas que tenía que resolver el jugador: ver de dónde viene el golpe y
+saber qué tienes a la espalda.
 
 Tres niveles, un jefe final, 2-3 horas.
 
@@ -25,20 +30,25 @@ Tres. Si una decisión no sirve a uno de estos tres, no entra.
 2. **Salir vivo vale más que seguir.** La tensión no está en el combate, está
    en la decisión de avanzar una sala más o extraer con lo que ya tienes.
 3. **La oscuridad es una mecánica.** La niebla y la falta de luz no decoran:
-   son lo que te impide ver qué te va a matar.
+   son lo que te impide ver qué te va a matar. En primera persona solo ves lo
+   que ilumina tu antorcha, y solo hacia donde miras: la cámara ya no te regala
+   el flanco ni la espalda.
 
 ## 3. Referencias
 
-- **Blade of Darkness (2001)** — la época, la estética y el cuerpo a cuerpo
-  en tercera persona. La referencia principal.
-- **Dark Messiah of Might & Magic** — el ritmo: ágil, pero con golpes cargados
-  que te dejan vendido mientras salen.
+- **Dark Messiah of Might & Magic** — el cuerpo a cuerpo en primera persona y
+  el ritmo: ágil, pero con golpes cargados que te dejan vendido mientras salen.
+  La referencia principal.
+- **Blade of Darkness (2001)** — la época, la estética y el peso de los golpes.
+  Su cámara no: esa parte se prueba en Dark Messiah.
 - **Dark and Darker** — la decisión de extraer.
-- **Hexen** — la paleta.
+- **Hexen** — la paleta, y que un juego en primera persona pueda ir de pegar
+  con un arma y no de disparar.
 
 **En qué NO se parece:** no es un Souls (no hay estamina, ni parry, ni esquiva
 con invulnerabilidad), no es un King's Field (se probó el combate lento en M1
-y no funcionaba), no tiene PvP, no es mundo abierto.
+y no funcionaba), no es un shooter (la ballesta es una herramienta con 6
+virotes, no una forma de jugar), no tiene PvP, no es mundo abierto.
 
 ## 4. Bucle de juego
 
@@ -66,17 +76,63 @@ que ningún golpe se puede cancelar una vez empezado.
 | Ataque pesado | 0,75 s | 0,20 s | 0,70 s | 1,65 s | 0 % |
 
 - Los tiempos se multiplican por la velocidad del arma (0,8 a 1,35).
+- **Los golpes barren un arco, no una línea.** Lo ancho que sea lo decide el arma
+  (sección 6): ancho alcanza a varios de una pasada, estrecho obliga a apuntar.
+  El filo va **de izquierda a derecha**, así que a quien tengas a la izquierda le
+  llega antes y a quien tengas a la derecha le da tiempo a apartarse.
 - **El ligero es la base.** Rápido, encadenable con 0,25 s de margen de
   entrada, y te deja moverte al 55 % de la velocidad de marcha.
 - **El pesado es la apuesta.** Hace 2,5× de daño y te deja clavado en el sitio
-  1,65 s. Solo puedes girar durante la anticipación. Ahí es donde te pegan.
-- **Fijado de objetivo:** blando. La cámara sigue al enemigo; tú te mueves
-  libre. Se puede quitar en cualquier momento. *Sin implementar.*
-- **Bloqueo:** reduce el daño recibido un 80 %. No hay parry. *Sin implementar.*
-- **Paso lateral:** desplazamiento corto de 0,4 s. **No da invulnerabilidad.**
-  *Sin implementar.*
+  1,65 s. **Solo puedes apuntarlo durante la anticipación:** después la vista
+  sigue girando libre, pero el arma se queda donde la dejaste. Ahí es donde te
+  pegan.
+- **Apuntas con la vista.** El arma sale exactamente por donde mira la cámara,
+  sin giro progresivo: cualquier retraso entre lo que ves y por dónde sale el
+  filo se siente roto. La única excepción es el pesado ya lanzado.
+- **Sin fijado de objetivo.** En tercera persona hacía falta para saber a quién
+  le pegabas; en primera lo hace la mira. Añadirlo ahora sería pelearse con la
+  cámara del jugador.
+- **La mira dice en qué fase estás.** No te ves a ti mismo, así que la cruz se
+  colorea con los mismos colores que la telegrafía de los enemigos: ámbar en la
+  anticipación, rojo mientras el filo está fuera, azul en la recuperación.
 - **Vida del jugador:** 100. No se regenera.
 - **Pociones:** curan 40. Máximo 3 por incursión, ocupan hueco de inventario.
+
+### Defensa
+
+Dos respuestas y ninguna vale para todo. Esa es toda la gracia.
+
+| Defensa | Coste | Sirve contra | Movimiento |
+|---|---|---|---|
+| Bloqueo | Ninguno, pero solo cubre de frente | Todo menos los imparables | 45 % |
+| Esquiva | 2 s de recarga | Todo, imparables incluidos | Desplazamiento fijo |
+
+- **Bloqueo (mantener pulsado).** Reduce el daño recibido un **80 %**. Cubre un
+  arco frontal de **120°**: por el flanco y por la espalda no bloqueas nada, y
+  por eso pelear contra tres es colocarse, no aguantar. La guardia cubre hacia
+  donde miras, así que girarse a tiempo es parte del bloqueo. Con la guardia
+  alta te mueves al 45 %. Atacar o esquivar la bajan solas. **No hay parry.**
+- **Ataques imparables.** Algunos ataques atraviesan el bloqueo. Su anticipación
+  se ve de otro color, así que se sabe antes de que salgan. Contra ellos no hay
+  guardia: hay que esquivar. El esqueleto no tiene ninguno; el ogro y el jefe
+  sí. Son lo que impide que la guardia alta sea la respuesta a todo.
+- **Esquiva.** Desplazamiento de **0,4 s a 9,5 m/s** en la dirección que marques,
+  o de frente si no marcas ninguna. **No da invulnerabilidad:** te salva dejar de
+  estar donde va a caer el golpe, no atravesarlo. **Recarga de 2 s**, contados
+  desde que empieza. Es lo único del juego con enfriamiento, y lo tiene
+  justamente para que no puedas responder a todo con ella.
+- Ni el bloqueo ni la esquiva se pueden usar a mitad de un golpe propio. La
+  regla de que nada se cancela no tiene excepciones.
+
+### Recibir un golpe
+
+No te interrumpe, no te empuja y no te frena. Lo único que pasa es que **el
+borde de la pantalla se tiñe de rojo**, con más fuerza cuanto más te ha quitado,
+y **late solo** por debajo del 40 % de vida, más rápido cuanto peor estás. No hay
+barra de vida ni números en pantalla: la vida se lee mirando el borde.
+
+Tus golpes tampoco interrumpen al enemigo. Si al jugar M2 resulta que castigar
+la anticipación ajena sale gratis, se revisa.
 
 ## 6. Jugador
 
@@ -93,17 +149,42 @@ que ningún golpe se puede cancelar una vez empezado.
 Elegir antorcha significa renunciar al escudo. Esa decisión es el pilar 3
 hecho mecánica.
 
-**Armas (3).** Comparten el mismo esqueleto de animación; cambian velocidad,
-alcance y daño. Es lo que las hace baratas de producir.
+**Armas (4).** Los tiempos de la tabla de combate son los mismos para todas.
+Lo que cambia es **el arco que barre el golpe**, **el alcance** y **lo rápido
+que sale**, que es de donde sale que cada una se juegue distinto y no solo
+pegue distinto. **Ninguna te desplaza.** El arma decide dónde tienes que estar;
+llegar hasta ahí es cosa tuya.
 
-| Arma | Daño | Alcance | Velocidad | Golpes para matar un esqueleto |
-|---|---|---|---|---|
-| Espada corta | 12 | 1,8 m | 0,8 | 4 ligeros (1,5 s) o 2 pesados |
-| Maza | 18 | 1,6 m | 1,0 | 3 ligeros (1,2 s) o 1 pesado |
-| Mandoble | 30 | 2,6 m | 1,35 | 2 ligeros (0,9 s) o 1 pesado |
+| Arma | Daño | Alcance | Velocidad | Arco ligero | Arco pesado | Matar un esqueleto |
+|---|---|---|---|---|---|---|
+| Espada corta | 12 | 1,8 m | 0,8 | 170° | 100° | 4 ligeros (1,4 s) o 2 pesados |
+| Maza | 26 | 1,25 m | 1,0 | 45° | 60° | 2 ligeros (0,9 s) o 1 pesado |
+| Mandoble | 30 | 2,6 m | 1,35 | 120° | **300°** | 2 ligeros (1,2 s) o 1 pesado |
+| Ballesta | 20 | — | 1,0 | — | — | 2 virotes |
 
-Las tres matan en un tiempo parecido: se diferencian por alcance y por ritmo,
-no por ser mejores o peores.
+- **Espada corta: la que perdona.** La más rápida (0,8) y la que más ancho barre:
+  **170°**, casi de lado a lado, así que alcanza a varios de una pasada y le da
+  igual que el enemigo no esté justo delante. Pega poco por golpe, pero a 0,35 s
+  el ciclo es la que menos te compromete: es con la que se aprende a pelear y con
+  la que se sale de un apuro. En primera persona es además la que menos castiga
+  fallar la puntería.
+- **Maza: la que obliga a acercarse.** Pega más del doble que la espada, pero su
+  arco es de 45° y su alcance de 1,25 m — **menos que los 1,7 m del esqueleto**.
+  Para llegar con ella tienes que estar dentro del alcance del que te va a pegar,
+  y hay que apuntarla: si el enemigo no está de frente, no le das.
+- **Mandoble: el que responde a estar rodeado.** El más largo y el más lento. Su
+  pesado no es un golpe, es **un giro de 300°** que alcanza a todo lo que tengas
+  alrededor, incluso a tu espalda. A cambio te clava 2,2 s en el sitio. Sacarlo
+  con tres encima es la mejor decisión del juego o la peor, y eso es el pilar 1.
+  En primera persona vale doble: es la única respuesta a lo que no puedes ver.
+- **Ballesta: la que se gasta.** Suelta un virote que **tarda en llegar** (18 m/s:
+  a diez metros, medio segundo), así que a un enemigo que se mueve hay que
+  adelantarle el tiro. Recarga 1 s. Entras con **6 virotes y no se reponen**: sin
+  munición es peso muerto hasta que salgas. Es una herramienta para abrir una
+  pelea concreta, no una forma de jugar.
+
+Ninguna es mejor que otra: matan en tiempos parecidos y se diferencian por dónde
+te obligan a estar.
 
 **Amuletos (3).** Con enfriamiento, sin maná.
 
@@ -124,12 +205,13 @@ Enseña a leer la telegrafía. Vida 40, daño 12, velocidad 3 m/s.
 a cruzar espacio abierto bajo presión, que es cuando aparecen los esqueletos.
 Vida 30, daño 18.
 
-**Ogro** — lento y devastador. Dos golpes te matan. Enseña a usar el espacio
-y a no ser codicioso. Vida 180, daño 55.
+**Ogro** — lento y devastador. Dos golpes te matan. Su ataque es **imparable**:
+la guardia no vale de nada, hay que esquivarlo. Enseña a usar el espacio y a no
+ser codicioso. Vida 180, daño 55.
 
 **El Guardián del Pozo (jefe)** — un ogro coronado que invoca esqueletos.
 Reutiliza dos enemigos existentes, que es exactamente por qué es el jefe.
-Vida 400.
+Conserva el ataque imparable del ogro: no se le puede ganar de guardia. Vida 400.
 
 ## 8. Estructura
 
@@ -185,7 +267,7 @@ siguiente hasta cerrar el anterior.
 
 | # | Hito | Hecho cuando... |
 |---|---|---|
-| M0 | Controlador en tercera persona | ✅ Camino, salto y caigo en una sala CSG |
+| M0 | Controlador en primera persona | ✅ Camino, salto y caigo en una sala CSG |
 | M1 | Combate mínimo | ✅ Mato a un esqueleto con las 3 armas y él puede matarme |
 | M2 | Sala jugable | Una sala con 3 esqueletos, niebla y luz de antorcha, que se puede perder |
 | M3 | Inventario, equipo y alijo | Entro con espada, cojo una maza, extraigo, y vuelvo a entrar con la maza |
@@ -198,17 +280,40 @@ siguiente hasta cerrar el anterior.
 **M6 es el hito que importa.** Hasta M6 no se toca ni un solo asset de arte.
 Si el juego no es divertido en cajas grises, no lo va a arreglar una textura.
 
+> **Excepción hecha a sabiendas (10-09-2026).** Se hizo un pase de aspecto
+> completo sobre la sala de pruebas —sillería, iluminación, atmósfera y rediseño
+> del esqueleto— para ver a dónde puede llegar el juego. Está documentado en
+> `ARTE.md`, junto con el presupuesto de rendimiento medido.
+>
+> **No cambia el plan.** El hito abierto sigue siendo M2 y el criterio sigue
+> siendo el mismo: una sala con tres esqueletos que se puede perder. Que ahora
+> se vea bien no cuenta como progreso. Si M2 no sale, lo que hay que tirar es
+> esto, no el combate.
+
 ## 12. Riesgos
 
 | Riesgo | Cuándo se ve | Qué hacemos |
 |---|---|---|
 | ~~El combate lento resulta aburrido~~ | M1 | **Ocurrió.** Se cambió a ligero rápido + pesado comprometido |
-| Sin bloqueo ni esquiva, pelear contra 2+ enemigos es una carrera de daño | M2 | Implementar el paso lateral, que ya está definido |
+| ~~Sin bloqueo ni esquiva, pelear contra 2+ enemigos es una carrera de daño~~ | M2 | **Resuelto.** Bloqueo de arco frontal y esquiva con 2 s de recarga |
+| ~~La tercera persona le quita al jugador la decisión de mirar~~ | M2 | **Ocurrió.** Se cambió a primera persona. Con la cámara detrás, ver el flanco y la espalda salía gratis y el pilar 3 no se sostenía |
+| En primera persona no ves lo que tienes detrás y morir por la espalda parece injusto | M2 | Es el precio de la cámara, no un fallo: el pesado del mandoble barre 300°, la densidad separa a los enemigos 9 m y el audio de M7 es lo que cierra el hueco. Si al jugar M2 muerto-por-la-espalda es la muerte más común, los enemigos tardan más en rodear |
+| El bloqueo vuelve el combate pasivo: aguantar con la guardia alta gana siempre | M2 | El arco de 120° y los imparables ya lo limitan. Si aun así pasa, la guardia pasa a romperse |
 | El ogro es el único modelo no humanoide y Mixamo no vale | M4 | Se sustituye por un humanoide grande y deforme |
+| La ballesta rompe el pilar 1: matar de lejos es quitarse el riesgo | M2 | 6 virotes por incursión y sin reposición. Si aun así se abusa, bajan a 4 o pierde daño |
+| Las armas ya no comparten animación y M7 sale más caro | M7 | Asumido: el barrido ancho, el machaque y el giro son movimientos distintos. A favor: en primera persona solo hay que animar brazos y arma, no un cuerpo entero. Si M7 no da de sí, la ballesta cae antes que ninguna |
 | El hub y el alijo se comen el tiempo | M3 | Se cae a: extraer = guardar partida, sin hub |
 
 ## 13. Decisiones abiertas
 
 - ¿La antorcha se consume con el tiempo o es permanente?
-- ¿El fijado de objetivo se rompe solo a cierta distancia?
+- ¿Se ven las manos y el arma, o solo el arco del golpe? En M2 solo se ve el
+  arco, que es lo que hace falta para leer el combate. Modelar unos brazos es
+  trabajo de M7 y decidirlo antes sería adelantar arte.
 - ¿Cuántas pociones se pueden guardar en el alijo?
+- **En M2 la antorcha sale gratis.** Ocupa la ranura secundaria, pero como el
+  escudo todavía no existe como objeto, no renuncias a nada por llevarla. La
+  decisión antorcha-o-escudo, que es el pilar 3 hecho mecánica, no se puede
+  evaluar hasta M3.
+- ¿Debería el golpe recibido interrumpir a alguien? De momento no interrumpe ni
+  a ti ni al enemigo. Se decide jugando M2, no antes.

@@ -20,11 +20,29 @@ public partial class SkeletonAI : CharacterBody3D
 	[ExportGroup("Ataque")]
 	[Export] public float Damage { get; set; } = 12.0f;
 	[Export] public float AttackRange { get; set; } = 1.7f;
+
+	/// <summary>Arco que barre su golpe. Estrecho: apartarse de lado lo esquiva.</summary>
+	[Export(PropertyHint.Range, "10,350,5")] public float ArcDegrees { get; set; } = 70.0f;
+
 	[Export] public float Windup { get; set; } = 0.45f;
 	[Export] public float Active { get; set; } = 0.15f;
 	[Export] public float Recovery { get; set; } = 0.50f;
 
+	/// <summary>Un ataque imparable atraviesa el bloqueo. El esqueleto no lo usa: es
+	/// para el ogro y el jefe, que obligan a esquivar en vez de aguantar.</summary>
+	[Export] public bool Unblockable { get; set; }
+
+	[ExportGroup("Muerte")]
+
+	/// <summary>
+	/// Segundos que dura el montón de huesos antes de desaparecer. A cero se
+	/// queda para siempre, que es lo que se quiere: son treinta mallas quietas sin
+	/// script ni colisión, y cuentan por dónde has pasado.
+	/// </summary>
+	[Export] public float CorpseSeconds { get; set; }
+
 	private Node3D _visual;
+	private SkeletonRig _rig;
 	private MeleeHitbox _hitbox;
 	private TelegraphMarker _marker;
 	private Health _health;
@@ -33,13 +51,26 @@ public partial class SkeletonAI : CharacterBody3D
 	private float _gravity;
 	private CombatPhase _phase = CombatPhase.Idle;
 	private float _phaseTimer;
+	private float _phaseDuration;
 	private bool _dead;
+
+	/// <summary>
+	/// Lo recorrido de la fase actual, de 0 a 1. Lo lee el esqueleto para saber
+	/// cuánto lleva levantado el brazo: así la animación dura lo que dura la
+	/// anticipación y no lo que diga una pista grabada.
+	/// </summary>
+	public float PhaseProgress =>
+		_phaseDuration > 0.0f ? Mathf.Clamp(1.0f - _phaseTimer / _phaseDuration, 0.0f, 1.0f) : 1.0f;
 
 	public override void _Ready()
 	{
 		_visual = GetNode<Node3D>("Visual");
+		_rig = _visual as SkeletonRig;
 		_hitbox = GetNode<MeleeHitbox>("Visual/AttackHitbox");
-		_marker = GetNodeOrNull<TelegraphMarker>("Visual/Telegraph");
+
+		// Por búsqueda y no por ruta: las cuencas viven colgadas del cráneo, y el
+		// cráneo se mueve de sitio cada vez que se retoca el esqueleto.
+		_marker = _visual.FindChild("Telegraph", true, false) as TelegraphMarker;
 		_health = GetNode<Health>("Health");
 		_health.Died += OnDied;
 
@@ -86,6 +117,8 @@ public partial class SkeletonAI : CharacterBody3D
 		{
 			FaceTarget(toTarget, dt);
 		}
+
+		_rig?.Drive(_phase, PhaseProgress);
 	}
 
 	private void UpdateSwing(float dt, float distance)
@@ -110,7 +143,7 @@ public partial class SkeletonAI : CharacterBody3D
 		{
 			case CombatPhase.Windup:
 				EnterPhase(CombatPhase.Active, Active);
-				_hitbox.Open(Damage, AttackRange);
+				_hitbox.Open(Damage, AttackRange, ArcDegrees, Active, Unblockable);
 				break;
 
 			case CombatPhase.Active:
@@ -128,7 +161,9 @@ public partial class SkeletonAI : CharacterBody3D
 	{
 		_phase = phase;
 		_phaseTimer = duration;
-		_marker?.SetPhase(phase);
+		_phaseDuration = duration;
+		_marker?.SetPhase(phase, Unblockable);
+		_rig?.Drive(phase, 0.0f);
 	}
 
 	private void FaceTarget(Vector3 toTarget, float dt)
@@ -147,19 +182,32 @@ public partial class SkeletonAI : CharacterBody3D
 		_visual.Rotation = rotation;
 	}
 
+	/// <summary>
+	/// Muere en dos tiempos, y el orden importa. Primero se APAGAN las cuencas:
+	/// son lo único del bicho que se ve en una sala a oscuras, así que apagarlas
+	/// es lo que se lee como "ya está". Solo después se sueltan los huesos.
+	///
+	/// Al revés —el montón primero y la luz después— parece un fallo.
+	/// </summary>
 	private void OnDied()
 	{
 		_dead = true;
 		_phase = CombatPhase.Idle;
 		_hitbox.Close();
-		_marker?.SetPhase(CombatPhase.Idle);
+		_marker?.Extinguish();
 
 		// Sale de la capa de enemigos para que el cadáver no estorbe.
 		SetCollisionLayerValue(3, false);
 
-		Tween tween = CreateTween();
-		tween.TweenProperty(_visual, "rotation:x", Mathf.DegToRad(-85.0f), 0.45f);
-		tween.TweenInterval(1.5);
-		tween.TweenCallback(Callable.From(QueueFree));
+		_rig?.Collapse();
+
+		// El montón se queda. Un esqueleto que se desvanece deja la sala igual que
+		// estaba y no cuenta nada; los huesos por el suelo dicen dónde has estado y
+		// cuánto te ha costado, que es media atmósfera de una mazmorra.
+		if (CorpseSeconds > 0.0f)
+		{
+			SceneTreeTimer timer = GetTree().CreateTimer(CorpseSeconds);
+			timer.Timeout += QueueFree;
+		}
 	}
 }

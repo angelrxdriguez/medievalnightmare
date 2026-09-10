@@ -1,0 +1,111 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://src/Player/Weapons/Models/WeaponModel.cs" id="1_model"]
+[ext_resource type="Material" path="res://assets/materials/weapons/MaceIron.tres" id="2_iron"]
+[ext_resource type="Material" path="res://assets/materials/weapons/Oak.tres" id="3_oak"]
+[ext_resource type="Material" path="res://assets/materials/weapons/Leather.tres" id="4_leather"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pommel"]
+material = ExtResource("2_iron")
+top_radius = 0.024
+bottom_radius = 0.02
+height = 0.028
+radial_segments = 6
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_grip"]
+material = ExtResource("4_leather")
+top_radius = 0.02
+bottom_radius = 0.022
+height = 0.16
+radial_segments = 6
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_haft"]
+material = ExtResource("3_oak")
+top_radius = 0.017
+bottom_radius = 0.02
+height = 0.3
+radial_segments = 6
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_head"]
+material = ExtResource("2_iron")
+top_radius = 0.04
+bottom_radius = 0.04
+height = 0.115
+radial_segments = 6
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_collar"]
+material = ExtResource("2_iron")
+top_radius = 0.029
+bottom_radius = 0.031
+height = 0.026
+radial_segments = 6
+rings = 1
+
+[sub_resource type="PrismMesh" id="PrismMesh_flange"]
+material = ExtResource("2_iron")
+size = Vector3(0.085, 0.075, 0.016)
+
+[node name="Mace" type="Node3D"]
+script = ExtResource("1_model")
+RestPosition = Vector3(0.3, -0.36, -0.4)
+RestRotationDegrees = Vector3(-46, -14, 12)
+SwingPlaneDegrees = 16.0
+SwingSweepDegrees = 95.0
+WindupFraction = 0.48
+SwingReach = 0.3
+WindupOffset = Vector3(-0.02, 0.15, 0.08)
+HeavySweepScale = 1.35
+
+[node name="Pommel" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.116, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_pommel")
+
+[node name="Grip" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.022, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_grip")
+
+[node name="Haft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.208, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_haft")
+
+[node name="CollarLow" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.345, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_collar")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.415, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_head")
+
+[node name="CollarHigh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.485, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_collar")
+
+[node name="FlangeE" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 0.028, 0.415, 0)
+cast_shadow = 0
+mesh = SubResource("PrismMesh_flange")
+
+[node name="FlangeS" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, 1, -1, 0, 0, 0, -1, 0, 0, 0.415, -0.028)
+cast_shadow = 0
+mesh = SubResource("PrismMesh_flange")
+
+[node name="FlangeW" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, -1, 0, -1, 0, 0, 0, 0, -1, -0.028, 0.415, 0)
+cast_shadow = 0
+mesh = SubResource("PrismMesh_flange")
+
+[node name="FlangeN" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 0, -1, -1, 0, 0, 0, 1, 0, 0, 0.415, 0.028)
+cast_shadow = 0
+mesh = SubResource("PrismMesh_flange")

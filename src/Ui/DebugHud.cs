@@ -25,9 +25,40 @@ public partial class DebugHud : CanvasLayer
 	{
 		WeaponData weapon = _player.CurrentWeapon;
 		string name = weapon?.DisplayName ?? "ninguna";
+		string guard = _player.IsBlocking ? "ALTA" : "baja";
+		float cooldown = _player.DashCooldownRemaining;
+		string dash = cooldown > 0.0f ? $"{cooldown:0.0} s" : "lista";
 
 		_label.Text = $"Vida   {_health.Current:0} / {_health.Max:0}\n"
-			+ $"Arma   {name}   (1 / 2 / 3 para cambiar)\n"
-			+ "Clic izquierdo: ligero    Clic derecho: pesado";
+			+ $"Arma   {name}   (1 / 2 / 3 / 4 para cambiar)\n"
+			+ $"Guardia   {guard}      Esquiva   {dash}{CommitLine()}\n"
+			+ AmmoLine(weapon)
+			+ "Clic izq: ligero   Clic der: pesado   Shift: bloquear   Q: esquivar";
+	}
+
+	/// <summary>
+	/// Solo mientras el golpe ya no se puede reorientar. En primera persona la
+	/// vista sigue girando aunque el arma no, y sin este aviso parece un fallo.
+	/// </summary>
+	private string CommitLine()
+	{
+		return _player.IsCommitted ? "      GOLPE COMPROMETIDO" : string.Empty;
+	}
+
+	/// <summary>Solo con la ballesta en la mano. Con las demás no hay nada que contar.</summary>
+	private string AmmoLine(WeaponData weapon)
+	{
+		if (weapon == null || weapon.Kind != WeaponKind.Ranged)
+		{
+			return string.Empty;
+		}
+
+		string state = _player.CurrentAmmo <= 0
+			? "sin munición"
+			: _player.ReloadRemaining > 0.0f
+				? $"recargando {_player.ReloadRemaining:0.0} s"
+				: "cargada";
+
+		return $"Virotes   {_player.CurrentAmmo} / {_player.CurrentAmmoCapacity}      {state}\n";
 	}
 }

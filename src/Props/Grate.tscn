@@ -1,0 +1,45 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Material" path="res://assets/materials/dungeon/RustedIron.tres" id="1_iron"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_bar_x"]
+material = ExtResource("1_iron")
+size = Vector3(1.42, 0.07, 0.07)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bar_z"]
+material = ExtResource("1_iron")
+size = Vector3(0.07, 0.07, 1.42)
+
+[node name="Grate" type="Node3D"]
+
+[node name="BarX1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.48)
+mesh = SubResource("BoxMesh_bar_x")
+
+[node name="BarX2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.16)
+mesh = SubResource("BoxMesh_bar_x")
+
+[node name="BarX3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.16)
+mesh = SubResource("BoxMesh_bar_x")
+
+[node name="BarX4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.48)
+mesh = SubResource("BoxMesh_bar_x")
+
+[node name="BarZ1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.48, 0.06, 0)
+mesh = SubResource("BoxMesh_bar_z")
+
+[node name="BarZ2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.16, 0.06, 0)
+mesh = SubResource("BoxMesh_bar_z")
+
+[node name="BarZ3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16, 0.06, 0)
+mesh = SubResource("BoxMesh_bar_z")
+
+[node name="BarZ4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.48, 0.06, 0)
+mesh = SubResource("BoxMesh_bar_z")

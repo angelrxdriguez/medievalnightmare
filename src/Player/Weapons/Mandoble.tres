@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://src/Core/WeaponData.cs" id="1_weapon"]
+[ext_resource type="PackedScene" path="res://src/Player/Weapons/Models/GreatswordModel.tscn" id="2_view"]
 
 [resource]
 script = ExtResource("1_weapon")
 DisplayName = "Mandoble"
+Kind = 0
 Damage = 30.0
 Range = 2.6
 SpeedScale = 1.35
+ViewModel = ExtResource("2_view")
 HeavyDamageMultiplier = 2.5
+LightArcDegrees = 120.0
+HeavyArcDegrees = 300.0
+AmmoCapacity = 0

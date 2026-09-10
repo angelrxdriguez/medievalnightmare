@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/flame.gdshader" id="1_flame"]
+
+[resource]
+resource_local_to_scene = true
+resource_name = "Flame"
+shader = ExtResource("1_flame")
+shader_parameter/core_color = Color(1, 0.95, 0.72, 1)
+shader_parameter/mid_color = Color(1, 0.52, 0.13, 1)
+shader_parameter/edge_color = Color(0.62, 0.11, 0.02, 1)
+shader_parameter/rise_speed = 1.9
+shader_parameter/noise_scale = 3.4
+shader_parameter/taper = 2.2
+shader_parameter/intensity = 2.6
+shader_parameter/seed = 0.0
+shader_parameter/color_levels = 8.0

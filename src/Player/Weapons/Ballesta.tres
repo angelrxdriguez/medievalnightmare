@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/Core/WeaponData.cs" id="1_weapon"]
+[ext_resource type="PackedScene" path="res://src/Core/Projectile.tscn" id="2_bolt"]
+[ext_resource type="PackedScene" path="res://src/Player/Weapons/Models/CrossbowModel.tscn" id="3_view"]
+
+[resource]
+script = ExtResource("1_weapon")
+DisplayName = "Ballesta"
+Kind = 1
+Damage = 20.0
+Range = 0.0
+SpeedScale = 1.0
+ViewModel = ExtResource("3_view")
+HeavyDamageMultiplier = 1.0
+LightArcDegrees = 60.0
+HeavyArcDegrees = 60.0
+AmmoCapacity = 6
+ReloadSeconds = 1.0
+ProjectileSpeed = 18.0
+Projectile = ExtResource("2_bolt")

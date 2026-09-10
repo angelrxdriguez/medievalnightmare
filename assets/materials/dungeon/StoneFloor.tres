@@ -1,0 +1,26 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/dungeon_stone.gdshader" id="1_stone"]
+
+[resource]
+resource_name = "StoneFloor"
+shader = ExtResource("1_stone")
+shader_parameter/stone_light = Color(0.29, 0.283, 0.262, 1)
+shader_parameter/stone_dark = Color(0.105, 0.103, 0.098, 1)
+shader_parameter/mortar_color = Color(0.055, 0.055, 0.052, 1)
+shader_parameter/brick_size = Vector2(1.15, 1.15)
+shader_parameter/mortar_width = 0.045
+shader_parameter/row_offset = 0.0
+shader_parameter/mortar_depth = 1.3
+shader_parameter/damp_color = Color(0.038, 0.045, 0.042, 1)
+shader_parameter/damp_height = 0.45
+shader_parameter/damp_amount = 0.85
+shader_parameter/moss_color = Color(0.1, 0.14, 0.07, 1)
+shader_parameter/moss_amount = 0.42
+shader_parameter/soot_color = Color(0.035, 0.032, 0.03, 1)
+shader_parameter/soot_amount = 0.0
+shader_parameter/texels_per_meter = 44.0
+shader_parameter/color_levels = 20.0
+shader_parameter/roughness_base = 0.92
+shader_parameter/cavity_ao = 0.9
+shader_parameter/triplanar_sharpness = 6.0

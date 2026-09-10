@@ -1,106 +1,290 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=18 format=3]
 
-[ext_resource type="Material" path="res://assets/materials/greybox/GreyboxGrid.tres" id="1_grid"]
+[ext_resource type="Environment" path="res://assets/environment/Dungeon.tres" id="1_env"]
 [ext_resource type="PackedScene" path="res://src/Player/Player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://src/Enemies/Skeleton/Skeleton.tscn" id="3_skeleton"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/StoneWall.tres" id="4_wall"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/StoneFloor.tres" id="5_floor"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/StoneCeiling.tres" id="6_ceiling"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/StonePillar.tres" id="7_pillar"]
+[ext_resource type="PackedScene" path="res://src/Props/Torch.tscn" id="8_torch"]
+[ext_resource type="PackedScene" path="res://src/Props/Grate.tscn" id="9_grate"]
 
-[sub_resource type="Environment" id="Environment_room"]
-background_mode = 1
-background_color = Color(0.13, 0.14, 0.17, 1)
-ambient_light_source = 2
-ambient_light_color = Color(0.62, 0.64, 0.7, 1)
-ambient_light_energy = 0.35
-tonemap_mode = 0
+[sub_resource type="Gradient" id="Gradient_dust"]
+offsets = PackedFloat32Array(0, 0.2, 0.8, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_dust"]
+gradient = SubResource("Gradient_dust")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_dust"]
+lifetime_randomness = 0.6
+emission_shape = 3
+emission_box_extents = Vector3(13.5, 1.5, 13.5)
+direction = Vector3(0.3, -1, 0.15)
+spread = 40.0
+initial_velocity_min = 0.02
+initial_velocity_max = 0.09
+gravity = Vector3(0.015, -0.02, 0.008)
+damping_min = 0.0
+damping_max = 0.05
+scale_min = 0.5
+scale_max = 1.4
+color_ramp = SubResource("GradientTexture1D_dust")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dust"]
+transparency = 1
+albedo_color = Color(0.72, 0.71, 0.65, 0.4)
+roughness = 1.0
+vertex_color_use_as_albedo = true
+billboard_mode = 1
+billboard_keep_scale = true
+disable_receive_shadows = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_dust"]
+material = SubResource("StandardMaterial3D_dust")
+size = Vector2(0.013, 0.013)
+
+[sub_resource type="BoxMesh" id="BoxMesh_rubble_big"]
+material = ExtResource("7_pillar")
+size = Vector3(0.75, 0.42, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_rubble_small"]
+material = ExtResource("7_pillar")
+size = Vector3(0.38, 0.24, 0.44)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_drum"]
+material = ExtResource("7_pillar")
+top_radius = 0.38
+bottom_radius = 0.4
+height = 0.35
+radial_segments = 8
+rings = 1
 
 [node name="TestRoom" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_room")
-
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.819152, 0.439385, -0.368688, 0, 0.642788, 0.766044, 0.573576, -0.627507, 0.526541, 0, 6, 0)
-light_energy = 1.0
-shadow_enabled = true
+environment = ExtResource("1_env")
 
 [node name="Geometry" type="CSGCombiner3D" parent="."]
 use_collision = true
 collision_layer = 1
 collision_mask = 0
-material_override = ExtResource("1_grid")
 
 [node name="Floor" type="CSGBox3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 size = Vector3(29, 0.5, 29)
+material = ExtResource("5_floor")
 
 [node name="WallNorth" type="CSGBox3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -14.25)
-size = Vector3(29, 3, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, -14.25)
+size = Vector3(29, 3.7, 0.5)
+material = ExtResource("4_wall")
 
 [node name="WallSouth" type="CSGBox3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 14.25)
-size = Vector3(29, 3, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 14.25)
+size = Vector3(29, 3.7, 0.5)
+material = ExtResource("4_wall")
 
 [node name="WallEast" type="CSGBox3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.25, 1.5, 0)
-size = Vector3(0.5, 3, 28)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.25, 1.55, 0)
+size = Vector3(0.5, 3.7, 28)
+material = ExtResource("4_wall")
 
 [node name="WallWest" type="CSGBox3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.25, 1.5, 0)
-size = Vector3(0.5, 3, 28)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.25, 1.55, 0)
+size = Vector3(0.5, 3.7, 28)
+material = ExtResource("4_wall")
 
 [node name="Doorway" type="CSGBox3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, -14.25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, -14.25)
 operation = 2
-size = Vector3(1.4, 2.2, 1.5)
+size = Vector3(1.4, 2.4, 1.5)
 
 [node name="Column" type="CSGCylinder3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 0)
 radius = 0.4
-height = 3.0
+height = 3.7
+sides = 10
+material = ExtResource("7_pillar")
 
 [node name="PillarNW" type="CSGBox3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.5, -7)
-size = Vector3(1.5, 3, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.55, -7)
+size = Vector3(1.5, 3.7, 1.5)
+material = ExtResource("7_pillar")
 
 [node name="PillarNE" type="CSGBox3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1.5, -7)
-size = Vector3(1.5, 3, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1.55, -7)
+size = Vector3(1.5, 3.7, 1.5)
+material = ExtResource("7_pillar")
 
 [node name="PillarSW" type="CSGBox3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.5, 7)
-size = Vector3(1.5, 3, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.55, 7)
+size = Vector3(1.5, 3.7, 1.5)
+material = ExtResource("7_pillar")
 
 [node name="PillarSE" type="CSGBox3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1.5, 7)
-size = Vector3(1.5, 3, 1.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1.55, 7)
+size = Vector3(1.5, 3.7, 1.5)
+material = ExtResource("7_pillar")
 
 [node name="Step1" type="CSGBox3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0.125, 8)
 size = Vector3(2, 0.25, 0.6)
+material = ExtResource("5_floor")
 
 [node name="Step2" type="CSGBox3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0.25, 8.6)
 size = Vector3(2, 0.5, 0.6)
+material = ExtResource("5_floor")
 
 [node name="Step3" type="CSGBox3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0.375, 9.2)
 size = Vector3(2, 0.75, 0.6)
+material = ExtResource("5_floor")
 
 [node name="Step4" type="CSGBox3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0.5, 9.8)
 size = Vector3(2, 1, 0.6)
+material = ExtResource("5_floor")
 
 [node name="Platform" type="CSGBox3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0.5, 11.6)
 size = Vector3(4, 1, 3)
+material = ExtResource("5_floor")
 
 [node name="Ramp" type="CSGBox3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 0.939693, -0.34202, 0, 0.34202, 0.939693, 11, 0.6, 8)
 size = Vector3(3, 0.4, 6)
+material = ExtResource("5_floor")
+
+[node name="Corridor" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, -17.5)
+size = Vector3(3.4, 2.8, 7)
+material = ExtResource("4_wall")
+
+[node name="CorridorHollow" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, -17.5)
+operation = 2
+size = Vector3(2.4, 2.4, 6.2)
 
 [node name="HumanReference" type="CSGBox3D" parent="Geometry"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.9, -4)
 size = Vector3(0.5, 1.8, 0.3)
+material = ExtResource("7_pillar")
+
+[node name="Roof" type="CSGCombiner3D" parent="."]
+use_collision = true
+collision_layer = 1
+collision_mask = 0
+
+[node name="Ceiling" type="CSGBox3D" parent="Roof"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.25, 0)
+size = Vector3(29, 0.5, 29)
+material = ExtResource("6_ceiling")
+
+[node name="GrateWest" type="CSGBox3D" parent="Roof"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3.25, -5)
+operation = 2
+size = Vector3(1.3, 1, 1.3)
+
+[node name="GrateEast" type="CSGBox3D" parent="Roof"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 3.25, 6)
+operation = 2
+size = Vector3(1.3, 1, 1.3)
+
+[node name="Torches" type="Node3D" parent="."]
+
+[node name="TorchN1" parent="Torches" instance=ExtResource("8_torch")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -5, 2, -14)
+
+[node name="TorchN2" parent="Torches" instance=ExtResource("8_torch")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5, 2, -14)
+
+[node name="TorchS1" parent="Torches" instance=ExtResource("8_torch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 14)
+
+[node name="TorchE1" parent="Torches" instance=ExtResource("8_torch")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 14, 2, 2)
+
+[node name="TorchW1" parent="Torches" instance=ExtResource("8_torch")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -14, 2, -2)
+
+[node name="TorchColumn" parent="Torches" instance=ExtResource("8_torch")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 2, 0.4)
+
+[node name="GrateBarsWest" parent="." instance=ExtResource("9_grate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3.12, -5)
+
+[node name="GrateBarsEast" parent="." instance=ExtResource("9_grate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 3.12, 6)
+
+[node name="Shafts" type="Node3D" parent="."]
+
+[node name="ShaftWest" type="SpotLight3D" parent="Shafts"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -6, 5.6, -5)
+light_color = Color(0.56, 0.68, 0.95, 1)
+light_energy = 6.0
+light_volumetric_fog_energy = 7.0
+shadow_enabled = true
+shadow_bias = 0.05
+spot_range = 15.0
+spot_attenuation = 0.7
+spot_angle = 13.0
+spot_angle_attenuation = 0.45
+
+[node name="ShaftEast" type="SpotLight3D" parent="Shafts"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 7, 5.6, 6)
+light_color = Color(0.52, 0.65, 0.94, 1)
+light_energy = 5.0
+light_volumetric_fog_energy = 6.0
+shadow_enabled = true
+shadow_bias = 0.05
+spot_range = 15.0
+spot_attenuation = 0.7
+spot_angle = 14.0
+spot_angle_attenuation = 0.45
+
+[node name="Rubble" type="Node3D" parent="."]
+
+[node name="Block1" type="MeshInstance3D" parent="Rubble"]
+transform = Transform3D(0.966, 0, 0.259, 0, 1, 0, -0.259, 0, 0.966, -12.6, 0.21, -11.4)
+mesh = SubResource("BoxMesh_rubble_big")
+
+[node name="Block2" type="MeshInstance3D" parent="Rubble"]
+transform = Transform3D(0.891, 0, -0.454, 0, 1, 0, 0.454, 0, 0.891, -13, 0.12, -9.9)
+mesh = SubResource("BoxMesh_rubble_small")
+
+[node name="Block3" type="MeshInstance3D" parent="Rubble"]
+transform = Transform3D(0.707, 0, 0.707, 0, 1, 0, -0.707, 0, 0.707, 12.9, 0.12, -12.3)
+mesh = SubResource("BoxMesh_rubble_small")
+
+[node name="Block4" type="MeshInstance3D" parent="Rubble"]
+transform = Transform3D(0.985, 0, -0.174, 0, 1, 0, 0.174, 0, 0.985, 13.1, 0.21, 11.8)
+mesh = SubResource("BoxMesh_rubble_big")
+
+[node name="Drum1" type="MeshInstance3D" parent="Rubble"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.4, 0.175, -6.2)
+mesh = SubResource("CylinderMesh_drum")
+
+[node name="Drum2" type="MeshInstance3D" parent="Rubble"]
+transform = Transform3D(0.94, 0, 0.342, 0, 1, 0, -0.342, 0, 0.94, -8.3, 0.51, -6.35)
+mesh = SubResource("CylinderMesh_drum")
+
+[node name="Drum3" type="MeshInstance3D" parent="Rubble"]
+transform = Transform3D(0.966, 0, -0.259, 0, 0.5, 0, 0.259, 0, 0.966, 8.6, 0.09, 6.4)
+mesh = SubResource("CylinderMesh_drum")
+
+[node name="Dust" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+cast_shadow = 0
+amount = 110
+lifetime = 14.0
+preprocess = 8.0
+randomness = 0.7
+visibility_aabb = AABB(-15, -2, -15, 30, 6, 30)
+process_material = SubResource("ParticleProcessMaterial_dust")
+draw_pass_1 = SubResource("QuadMesh_dust")
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 11)
@@ -113,12 +297,3 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.05, -8)
 
 [node name="Skeleton3" parent="." instance=ExtResource("3_skeleton")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.05, -9)
-
-[node name="Skeleton4" parent="." instance=ExtResource("3_skeleton")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0.05, 2)
-
-[node name="Skeleton5" parent="." instance=ExtResource("3_skeleton")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.05, 0)
-
-[node name="Skeleton6" parent="." instance=ExtResource("3_skeleton")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -12)

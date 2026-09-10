@@ -1,0 +1,18 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/rusted_iron.gdshader" id="1_iron"]
+
+[resource]
+resource_name = "MaceIron"
+shader = ExtResource("1_iron")
+shader_parameter/iron_color = Color(0.15, 0.148, 0.16, 1)
+shader_parameter/iron_sheen = Color(0.36, 0.37, 0.41, 1)
+shader_parameter/rust_dark = Color(0.165, 0.075, 0.032, 1)
+shader_parameter/rust_light = Color(0.38, 0.185, 0.07, 1)
+shader_parameter/rust_amount = 0.5
+shader_parameter/rust_edge = 0.1
+shader_parameter/texels_per_meter = 300.0
+shader_parameter/color_levels = 11.0
+shader_parameter/dither_amount = 1.0
+shader_parameter/facet_amount = 0.55
+shader_parameter/vertex_grid = 0.0035

@@ -1,11 +1,17 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://src/Core/WeaponData.cs" id="1_weapon"]
+[ext_resource type="PackedScene" path="res://src/Player/Weapons/Models/SwordModel.tscn" id="2_view"]
 
 [resource]
 script = ExtResource("1_weapon")
 DisplayName = "Espada corta"
+Kind = 0
 Damage = 12.0
 Range = 1.8
 SpeedScale = 0.8
+ViewModel = ExtResource("2_view")
 HeavyDamageMultiplier = 2.5
+LightArcDegrees = 170.0
+HeavyArcDegrees = 100.0
+AmmoCapacity = 0

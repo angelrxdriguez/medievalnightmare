@@ -1,0 +1,23 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/blade_steel.gdshader" id="1_steel"]
+
+[resource]
+resource_name = "GreatswordSteel"
+shader = ExtResource("1_steel")
+shader_parameter/steel_dark = Color(0.075, 0.082, 0.1, 1)
+shader_parameter/steel_light = Color(0.41, 0.43, 0.5, 1)
+shader_parameter/polish = 0.62
+shader_parameter/tarnish_color = Color(0.13, 0.088, 0.05, 1)
+shader_parameter/tarnish_amount = 0.4
+shader_parameter/edge_axis = Vector3(1, 0, 0)
+shader_parameter/edge_inner = 0.038
+shader_parameter/edge_outer = 0.055
+shader_parameter/fuller_width = 0.014
+shader_parameter/grain_axis = Vector3(0, 1, 0)
+shader_parameter/grain_stretch = 30.0
+shader_parameter/texels_per_meter = 260.0
+shader_parameter/color_levels = 11.0
+shader_parameter/dither_amount = 1.0
+shader_parameter/facet_amount = 0.55
+shader_parameter/vertex_grid = 0.0035

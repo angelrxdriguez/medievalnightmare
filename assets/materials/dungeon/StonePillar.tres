@@ -1,0 +1,26 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/dungeon_stone.gdshader" id="1_stone"]
+
+[resource]
+resource_name = "StonePillar"
+shader = ExtResource("1_stone")
+shader_parameter/stone_light = Color(0.39, 0.372, 0.335, 1)
+shader_parameter/stone_dark = Color(0.16, 0.15, 0.135, 1)
+shader_parameter/mortar_color = Color(0.078, 0.073, 0.066, 1)
+shader_parameter/brick_size = Vector2(0.62, 0.31)
+shader_parameter/mortar_width = 0.03
+shader_parameter/row_offset = 0.5
+shader_parameter/mortar_depth = 1.25
+shader_parameter/damp_color = Color(0.05, 0.056, 0.05, 1)
+shader_parameter/damp_height = 1.25
+shader_parameter/damp_amount = 0.65
+shader_parameter/moss_color = Color(0.13, 0.17, 0.085, 1)
+shader_parameter/moss_amount = 0.4
+shader_parameter/soot_color = Color(0.035, 0.032, 0.03, 1)
+shader_parameter/soot_amount = 0.2
+shader_parameter/texels_per_meter = 60.0
+shader_parameter/color_levels = 22.0
+shader_parameter/roughness_base = 0.94
+shader_parameter/cavity_ao = 0.88
+shader_parameter/triplanar_sharpness = 5.0

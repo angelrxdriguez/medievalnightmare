@@ -1,0 +1,18 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/rusted_iron.gdshader" id="1_iron"]
+
+[resource]
+resource_name = "SkeletonIron"
+shader = ExtResource("1_iron")
+shader_parameter/iron_color = Color(0.115, 0.113, 0.125, 1)
+shader_parameter/iron_sheen = Color(0.24, 0.25, 0.28, 1)
+shader_parameter/rust_dark = Color(0.185, 0.082, 0.034, 1)
+shader_parameter/rust_light = Color(0.42, 0.2, 0.075, 1)
+shader_parameter/rust_amount = 0.72
+shader_parameter/rust_edge = 0.11
+shader_parameter/texels_per_meter = 220.0
+shader_parameter/color_levels = 10.0
+shader_parameter/dither_amount = 1.0
+shader_parameter/facet_amount = 0.7
+shader_parameter/vertex_grid = 0.006

@@ -1,0 +1,95 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://src/Player/Weapons/Models/WeaponModel.cs" id="1_model"]
+[ext_resource type="Material" path="res://assets/materials/weapons/GreatswordSteel.tres" id="2_steel"]
+[ext_resource type="Material" path="res://assets/materials/weapons/Bronze.tres" id="3_bronze"]
+[ext_resource type="Material" path="res://assets/materials/weapons/Leather.tres" id="4_leather"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_pommel"]
+material = ExtResource("3_bronze")
+radius = 0.032
+height = 0.062
+radial_segments = 6
+rings = 3
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_grip"]
+material = ExtResource("4_leather")
+top_radius = 0.021
+bottom_radius = 0.024
+height = 0.25
+radial_segments = 6
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_guard"]
+material = ExtResource("3_bronze")
+top_radius = 0.017
+bottom_radius = 0.017
+height = 0.36
+radial_segments = 5
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ricasso"]
+material = ExtResource("2_steel")
+top_radius = 0.034
+bottom_radius = 0.03
+height = 0.12
+radial_segments = 4
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_blade"]
+material = ExtResource("2_steel")
+top_radius = 0.05
+bottom_radius = 0.062
+height = 0.78
+radial_segments = 4
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_point"]
+material = ExtResource("2_steel")
+top_radius = 0.002
+bottom_radius = 0.05
+height = 0.17
+radial_segments = 4
+rings = 1
+
+[node name="Greatsword" type="Node3D"]
+script = ExtResource("1_model")
+RestPosition = Vector3(0.33, -0.46, -0.3)
+RestRotationDegrees = Vector3(-66, -16, 18)
+SwingPlaneDegrees = 40.0
+SwingSweepDegrees = 128.0
+WindupFraction = 0.46
+SwingReach = 0.14
+WindupOffset = Vector3(-0.02, 0.12, 0.16)
+HeavySweepScale = 1.0
+HeavySpins = true
+
+[node name="Pommel" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.155, 0)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_pommel")
+
+[node name="Grip" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.005, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_grip")
+
+[node name="Guard" type="MeshInstance3D" parent="."]
+transform = Transform3D(0, 1, 0, -1, 0, 0, 0, 0, 1, 0, 0.135, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_guard")
+
+[node name="Ricasso" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.3, 0, 0.21, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_ricasso")
+
+[node name="Blade" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.24, 0, 0.66, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_blade")
+
+[node name="Point" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.24, 0, 1.135, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_point")

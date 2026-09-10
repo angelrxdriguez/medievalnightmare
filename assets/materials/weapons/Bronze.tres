@@ -1,0 +1,23 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/blade_steel.gdshader" id="1_steel"]
+
+[resource]
+resource_name = "Bronze"
+shader = ExtResource("1_steel")
+shader_parameter/steel_dark = Color(0.135, 0.088, 0.038, 1)
+shader_parameter/steel_light = Color(0.5, 0.36, 0.16, 1)
+shader_parameter/polish = 0.4
+shader_parameter/tarnish_color = Color(0.09, 0.115, 0.09, 1)
+shader_parameter/tarnish_amount = 0.5
+shader_parameter/edge_axis = Vector3(1, 0, 0)
+shader_parameter/edge_inner = 0.5
+shader_parameter/edge_outer = 0.5
+shader_parameter/fuller_width = 0.0
+shader_parameter/grain_axis = Vector3(0, 1, 0)
+shader_parameter/grain_stretch = 4.0
+shader_parameter/texels_per_meter = 320.0
+shader_parameter/color_levels = 10.0
+shader_parameter/dither_amount = 1.0
+shader_parameter/facet_amount = 0.6
+shader_parameter/vertex_grid = 0.0035

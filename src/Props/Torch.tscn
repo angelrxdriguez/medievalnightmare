@@ -1,0 +1,123 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://src/Props/TorchLight.cs" id="1_torch"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/RustedIron.tres" id="2_iron"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/Flame.tres" id="3_flame"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wood"]
+albedo_color = Color(0.075, 0.058, 0.043, 1)
+roughness = 0.96
+metallic_specular = 0.15
+
+[sub_resource type="BoxMesh" id="BoxMesh_plate"]
+material = ExtResource("2_iron")
+size = Vector3(0.16, 0.28, 0.06)
+
+[sub_resource type="BoxMesh" id="BoxMesh_arm"]
+material = ExtResource("2_iron")
+size = Vector3(0.05, 0.05, 0.28)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_socket"]
+material = ExtResource("2_iron")
+top_radius = 0.062
+bottom_radius = 0.045
+height = 0.11
+radial_segments = 8
+rings = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_shaft"]
+material = SubResource("StandardMaterial3D_wood")
+top_radius = 0.028
+bottom_radius = 0.022
+height = 0.5
+radial_segments = 6
+rings = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_flame"]
+size = Vector2(0.28, 0.46)
+
+[sub_resource type="Gradient" id="Gradient_ember"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 0.88, 0.55, 1, 1, 0.42, 0.1, 1, 0.3, 0.05, 0.01, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ember"]
+gradient = SubResource("Gradient_ember")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ember"]
+emission_shape = 1
+emission_sphere_radius = 0.07
+direction = Vector3(0, 1, 0)
+spread = 22.0
+initial_velocity_min = 0.22
+initial_velocity_max = 0.65
+gravity = Vector3(0, 0.28, 0)
+damping_min = 0.3
+damping_max = 0.9
+scale_min = 0.35
+scale_max = 1.0
+color_ramp = SubResource("GradientTexture1D_ember")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ember"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 0.62, 0.22, 1)
+billboard_mode = 1
+billboard_keep_scale = true
+disable_receive_shadows = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_ember"]
+material = SubResource("StandardMaterial3D_ember")
+size = Vector2(0.022, 0.022)
+
+[node name="Torch" type="Node3D"]
+script = ExtResource("1_torch")
+
+[node name="Plate" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.03)
+mesh = SubResource("BoxMesh_plate")
+
+[node name="Arm" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, -0.17)
+mesh = SubResource("BoxMesh_arm")
+
+[node name="Socket" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -0.3)
+mesh = SubResource("CylinderMesh_socket")
+
+[node name="Shaft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.951057, 0.309017, 0, -0.309017, 0.951057, 0, 0.26, -0.32)
+mesh = SubResource("CylinderMesh_shaft")
+
+[node name="Flame" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.66, -0.4)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_flame")
+material_override = ExtResource("3_flame")
+
+[node name="Light" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.68, -0.47)
+light_color = Color(1, 0.72, 0.4, 1)
+light_energy = 4.4
+light_volumetric_fog_energy = 1.5
+shadow_enabled = true
+omni_shadow_mode = 0
+shadow_bias = 0.06
+shadow_normal_bias = 1.5
+distance_fade_enabled = true
+distance_fade_begin = 22.0
+distance_fade_shadow = 14.0
+distance_fade_length = 6.0
+omni_range = 11.0
+omni_attenuation = 1.1
+
+[node name="Embers" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76, -0.4)
+cast_shadow = 0
+amount = 10
+lifetime = 2.4
+randomness = 0.6
+visibility_aabb = AABB(-0.7, -0.3, -0.7, 1.4, 2.6, 1.4)
+process_material = SubResource("ParticleProcessMaterial_ember")
+draw_pass_1 = SubResource("QuadMesh_ember")
