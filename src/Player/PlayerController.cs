@@ -29,6 +29,12 @@ namespace MedievalNightmare.Player;
 /// </summary>
 public partial class PlayerController : CharacterBody3D, IDamageGuard
 {
+	/// <summary>
+	/// La guardia se acaba de romper. Lo escucha quien tenga que contarlo: de
+	/// momento el arma, que sale despedida, y en su día el HUD.
+	/// </summary>
+	[Signal] public delegate void GuardBrokenEventHandler();
+
 	[ExportGroup("Movimiento")]
 	[Export] public float WalkSpeed { get; set; } = 4.5f;
 	[Export] public float Acceleration { get; set; } = 34.0f;
@@ -91,6 +97,32 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 
 	[Export] public float BlockMoveScale { get; set; } = 0.45f;
 
+	/// <summary>
+	/// Daño BRUTO que aguanta la guardia dentro de la ventana antes de romperse.
+	/// Veinticuatro son dos golpes de esqueleto: aguantar deja de ser respuesta a
+	/// partir del segundo.
+	///
+	/// Se cuenta el daño y no los impactos a propósito. Así un golpe pesado rompe
+	/// la guardia él solo sin que haya que marcarlo como tal en ningún sitio: lo
+	/// que abre la guardia es lo fuerte que venía el golpe, que es lo que el
+	/// jugador ve.
+	/// </summary>
+	[Export] public float GuardBreakDamage { get; set; } = 24.0f;
+
+	/// <summary>
+	/// Ventana en la que se suma el daño bloqueado, contada desde el ÚLTIMO
+	/// impacto. Encajar dos golpes sueltos a lo largo de una pelea no rompe nada;
+	/// aguantar con la guardia alta mientras te llueven, sí.
+	/// </summary>
+	[Export] public float GuardLoadWindow { get; set; } = 3.0f;
+
+	/// <summary>
+	/// Lo que tardas en recuperar la guardia una vez rota. Diez segundos es una
+	/// pelea entera a pecho descubierto: es el precio de haber aguantado en vez de
+	/// haberte movido.
+	/// </summary>
+	[Export] public float GuardBreakRecovery { get; set; } = 10.0f;
+
 	[ExportSubgroup("Esquiva")]
 	[Export] public float DashSpeed { get; set; } = 9.5f;
 	[Export] public float DashDuration { get; set; } = 0.4f;
@@ -119,6 +151,9 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	private float _attackBuffer;
 	private bool _bufferedHeavy;
 	private bool _blocking;
+	private float _guardLoad;
+	private float _guardWindowTimer;
+	private float _guardBreakTimer;
 	private float _dashTimer;
 	private float _dashCooldownTimer;
 	private Vector3 _dashDirection;
@@ -132,6 +167,22 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 
 	/// <summary>Guardia alta. Se cae sola al atacar, al esquivar y al morir.</summary>
 	public bool IsBlocking => _blocking;
+
+	/// <summary>
+	/// La guardia está rota y no se puede levantar. Dura
+	/// <see cref="GuardBreakRecovery"/> segundos.
+	/// </summary>
+	public bool IsGuardBroken => _guardBreakTimer > 0.0f;
+
+	/// <summary>Segundos que faltan para recuperar la guardia. Cero si está entera.</summary>
+	public float GuardBreakRemaining => _guardBreakTimer;
+
+	/// <summary>
+	/// Lo cargada que está la guardia, de 0 a 1. Uno es romperse. Nadie lo pinta
+	/// todavía: es lo que va a leer el HUD cuando exista.
+	/// </summary>
+	public float GuardLoadRatio =>
+		GuardBreakDamage > 0.0f ? Mathf.Clamp(_guardLoad / GuardBreakDamage, 0.0f, 1.0f) : 0.0f;
 
 	public bool IsDashing => _dashTimer > 0.0f;
 
@@ -240,8 +291,11 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		UpdateDash(dt);
 		UpdateSwing(dt);
 
+		UpdateGuard(dt);
+
 		_blocking = !_dead
 			&& !IsDashing
+			&& !IsGuardBroken
 			&& _phase == CombatPhase.Idle
 			&& Input.IsActionPressed("block");
 
@@ -602,8 +656,55 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	}
 
 	/// <summary>
+	/// Enfría la guardia rota y vacía la carga si ha pasado la ventana sin recibir
+	/// nada. Lo segundo es lo que separa "me han pegado dos veces seguidas" de "me
+	/// han pegado dos veces en toda la sala".
+	/// </summary>
+	private void UpdateGuard(float dt)
+	{
+		if (_guardBreakTimer > 0.0f)
+		{
+			_guardBreakTimer = Mathf.Max(0.0f, _guardBreakTimer - dt);
+		}
+
+		if (_guardWindowTimer > 0.0f)
+		{
+			_guardWindowTimer -= dt;
+			if (_guardWindowTimer <= 0.0f)
+			{
+				_guardLoad = 0.0f;
+			}
+		}
+	}
+
+	/// <summary>
+	/// Suma lo que acaba de parar la guardia y la rompe si se pasa. El golpe que
+	/// la rompe SÍ se bloquea: la guardia aguanta ese y cede después. Romperse
+	/// antes de parar el golpe convierte el segundo impacto en daño doble y eso no
+	/// se lee, se sufre.
+	/// </summary>
+	private void LoadGuard(float rawDamage)
+	{
+		_guardLoad += rawDamage;
+		_guardWindowTimer = GuardLoadWindow;
+
+		if (_guardLoad < GuardBreakDamage)
+		{
+			return;
+		}
+
+		_guardLoad = 0.0f;
+		_guardWindowTimer = 0.0f;
+		_guardBreakTimer = GuardBreakRecovery;
+		_blocking = false;
+		EmitSignal(SignalName.GuardBroken);
+	}
+
+	/// <summary>
 	/// El bloqueo solo cubre el arco frontal y no existe contra los imparables.
 	/// Es lo que impide que la guardia alta sea la respuesta a todo.
+	///
+	/// Lo que para de verdad carga la guardia: ver <see cref="LoadGuard"/>.
 	/// </summary>
 	public float FilterDamage(float amount, Vector3 origin, bool unblockable)
 	{
@@ -617,6 +718,7 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 
 		if (toOrigin.IsZeroApprox())
 		{
+			LoadGuard(amount);
 			return amount * BlockDamageScale;
 		}
 
@@ -625,7 +727,16 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 
 		float angle = Mathf.RadToDeg(facing.Normalized().AngleTo(toOrigin.Normalized()));
 
-		return angle <= BlockArcDegrees * 0.5f ? amount * BlockDamageScale : amount;
+		// Por el flanco y por la espalda no hay guardia que romper: el golpe entra
+		// entero y no carga nada.
+		if (angle > BlockArcDegrees * 0.5f)
+		{
+			return amount;
+		}
+
+		LoadGuard(amount);
+
+		return amount * BlockDamageScale;
 	}
 
 	/// <summary>
@@ -638,6 +749,9 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		_dead = true;
 		_phase = CombatPhase.Idle;
 		_blocking = false;
+		_guardLoad = 0.0f;
+		_guardWindowTimer = 0.0f;
+		_guardBreakTimer = 0.0f;
 		_dashTimer = 0.0f;
 		_hitbox.Close();
 	}

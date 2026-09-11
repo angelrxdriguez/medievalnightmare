@@ -87,6 +87,31 @@ public partial class WeaponView : Node3D
 
 	[Export] public float LandRecover { get; set; } = 6.5f;
 
+	[ExportGroup("Guardia rota")]
+
+	/// <summary>
+	/// El empujón del momento en que se rompe la guardia: el arma sale despedida
+	/// hacia fuera y hacia atrás. Es corto a propósito. Lo que tiene que contar no
+	/// es "te han hecho daño" —de eso ya va el borde rojo— sino "esto que estabas
+	/// haciendo se ha acabado".
+	/// </summary>
+	[Export] public Vector3 GuardBreakKick { get; set; } = new(0.13f, -0.06f, 0.15f);
+
+	[Export] public Vector3 GuardBreakKickDegrees { get; set; } = new(-16.0f, 28.0f, 36.0f);
+
+	/// <summary>Lo rápido que se recoge el empujón. Alto es un golpe seco.</summary>
+	[Export] public float GuardBreakRecover { get; set; } = 4.5f;
+
+	/// <summary>
+	/// Dónde se queda el arma los diez segundos que dura la guardia rota: caída y
+	/// abierta, porque no hay guardia que poner. Sin esto el jugador pulsa bloquear,
+	/// no pasa nada y lo lee como un fallo del juego en vez de como un estado.
+	/// Hasta que haya HUD, esta pose ES el indicador.
+	/// </summary>
+	[Export] public Vector3 BrokenGuardOffset { get; set; } = new(0.03f, -0.10f, 0.0f);
+
+	[Export] public Vector3 BrokenGuardDegrees { get; set; } = new(10.0f, 0.0f, -8.0f);
+
 	[ExportGroup("Cambio de arma")]
 
 	/// <summary>Lo que tarda en bajar la vieja y subir la nueva. El cambio no es gratis.</summary>
@@ -121,6 +146,8 @@ public partial class WeaponView : Node3D
 	private float _land;
 	private bool _wasOnFloor = true;
 	private float _blockWeight;
+	private float _breakPunch;
+	private float _brokenWeight;
 	private float _dashWeight;
 	private float _reloadWeight;
 	private float _swapTimer;
@@ -141,6 +168,7 @@ public partial class WeaponView : Node3D
 
 		_lastYaw = _head.Rotation.Y;
 		_lastPitch = _head.Rotation.X;
+		_player.GuardBroken += OnGuardBroken;
 
 		SwapTo(_player.WeaponIndex, instant: true);
 	}
@@ -231,6 +259,10 @@ public partial class WeaponView : Node3D
 		_blockWeight = Damp(_blockWeight, _player.IsBlocking ? 1.0f : 0.0f, 16.0f, dt);
 		_dashWeight = Damp(_dashWeight, _player.IsDashing ? 1.0f : 0.0f, 12.0f, dt);
 
+		// El empujón se recoge solo; el brazo caído se queda mientras dure la rotura.
+		_breakPunch = Damp(_breakPunch, 0.0f, GuardBreakRecover, dt);
+		_brokenWeight = Damp(_brokenWeight, _player.IsGuardBroken ? 1.0f : 0.0f, 7.0f, dt);
+
 		bool reloading = _player.ReloadRemaining > 0.0f;
 		_reloadWeight = Damp(_reloadWeight, reloading ? 1.0f : 0.0f, 9.0f, dt);
 
@@ -275,6 +307,14 @@ public partial class WeaponView : Node3D
 
 		position += _model.BlockOffset * _blockWeight;
 		basis = Basis.FromEuler(DegToRad(_model.BlockRotationDegrees) * _blockWeight) * basis;
+
+		// La guardia rota va DESPUÉS del bloqueo porque lo contradice: el peso del
+		// bloqueo ya está cayendo a cero cuando esto entra, y lo que se ve es que el
+		// arma se escapa de la pose de guardia, no que nunca estuvo ahí.
+		position += BrokenGuardOffset * _brokenWeight + GuardBreakKick * _breakPunch;
+		basis = Basis.FromEuler(
+			DegToRad(BrokenGuardDegrees) * _brokenWeight
+			+ DegToRad(GuardBreakKickDegrees) * _breakPunch) * basis;
 
 		// La esquiva mete el arma contra el pecho: vas de lado, no atacando.
 		position += new Vector3(-0.06f, -0.1f, 0.12f) * _dashWeight;
@@ -436,6 +476,15 @@ public partial class WeaponView : Node3D
 			Mathf.DegToRad(degrees.X),
 			Mathf.DegToRad(degrees.Y),
 			Mathf.DegToRad(degrees.Z));
+	}
+
+	/// <summary>
+	/// Se ha roto la guardia. Se arma el empujón de golpe y no con amortiguación:
+	/// que te abran la guardia es un instante, no una transición.
+	/// </summary>
+	private void OnGuardBroken()
+	{
+		_breakPunch = 1.0f;
 	}
 
 	/// <summary>Amortiguación independiente del fotograma. Con lerp puro, a 30 fps va al doble.</summary>

@@ -104,7 +104,7 @@ Dos respuestas y ninguna vale para todo. Esa es toda la gracia.
 
 | Defensa | Coste | Sirve contra | Movimiento |
 |---|---|---|---|
-| Bloqueo | Ninguno, pero solo cubre de frente | Todo menos los imparables | 45 % |
+| Bloqueo | Se rompe si aguantas, y solo cubre de frente | Todo menos los imparables | 45 % |
 | Esquiva | 2 s de recarga | Todo, imparables incluidos | Desplazamiento fijo |
 
 - **Bloqueo (mantener pulsado).** Reduce el daño recibido un **80 %**. Cubre un
@@ -112,15 +112,36 @@ Dos respuestas y ninguna vale para todo. Esa es toda la gracia.
   por eso pelear contra tres es colocarse, no aguantar. La guardia cubre hacia
   donde miras, así que girarse a tiempo es parte del bloqueo. Con la guardia
   alta te mueves al 45 %. Atacar o esquivar la bajan solas. **No hay parry.**
+- **La guardia se rompe.** Aguanta **24 de daño bruto en 3 s**; al pasarse cede y
+  tardas **10 s** en poder volver a levantarla. Veinticuatro son dos golpes de
+  esqueleto seguidos, que es de donde sale la regla: el primero lo paras, el
+  segundo te abre.
+  - **Se cuenta el daño, no los impactos.** Así un golpe fuerte rompe la guardia
+    él solo sin tener que ser un caso aparte, y los enemigos de M4 no obligan a
+    volver aquí a añadir excepciones.
+  - **La ventana se cuenta desde el último golpe parado.** Encajar dos golpes
+    separados a lo largo de una pelea no rompe nada. Lo que la rompe es aguantar
+    mientras te llueven, que es exactamente lo que se quería quitar.
+  - **El golpe que la rompe sí lo paras.** La guardia cede después, no en lugar
+    de. Al revés, el segundo impacto entraría a daño completo y eso no se lee: se
+    sufre.
+  - **Lo que no carga la guardia:** los imparables y todo lo que te llegue fuera
+    del arco frontal. Ahí no hay guardia que romper, el golpe entra entero y ya
+    estás pagando por no haberte girado.
+  - Al probar M2 la guardia alta **no** ganaba sola, así que esto no arregla nada
+    roto. Entra porque aguantar no puede ser una postura sostenible, y sin la
+    rotura lo único que lo impedía era acordarse de girar.
 - **Ataques imparables.** Algunos ataques atraviesan el bloqueo. Su anticipación
   se ve de otro color, así que se sabe antes de que salgan. Contra ellos no hay
   guardia: hay que esquivar. El esqueleto no tiene ninguno; el ogro y el jefe
-  sí. Son lo que impide que la guardia alta sea la respuesta a todo.
+  sí. Junto con la rotura, son lo que impide que la guardia alta sea la
+  respuesta a todo: contra ellos no hay guardia que aguante, ni siquiera entera.
 - **Esquiva.** Desplazamiento de **0,4 s a 9,5 m/s** en la dirección que marques,
   o de frente si no marcas ninguna. **No da invulnerabilidad:** te salva dejar de
   estar donde va a caer el golpe, no atravesarlo. **Recarga de 2 s**, contados
-  desde que empieza. Es lo único del juego con enfriamiento, y lo tiene
-  justamente para que no puedas responder a todo con ella.
+  desde que empieza. Es lo único que tiene enfriamiento **por diseño**: la
+  guardia rota también te hace esperar, pero eso es un castigo, no un coste. Lo
+  tiene justamente para que no puedas responder a todo con ella.
 - Ni el bloqueo ni la esquiva se pueden usar a mitad de un golpe propio. La
   regla de que nada se cancela no tiene excepciones.
 
@@ -131,8 +152,9 @@ borde de la pantalla se tiñe de rojo**, con más fuerza cuanto más te ha quita
 y **late solo** por debajo del 40 % de vida, más rápido cuanto peor estás. No hay
 barra de vida ni números en pantalla: la vida se lee mirando el borde.
 
-Tus golpes tampoco interrumpen al enemigo. Si al jugar M2 resulta que castigar
-la anticipación ajena sale gratis, se revisa.
+Tus golpes tampoco interrumpen al enemigo. **Probado en M2 y se queda así:**
+castigar la anticipación ajena no sale gratis, porque el rato que pasas pegando
+es rato que no estás defendiendo.
 
 ## 6. Jugador
 
@@ -301,10 +323,18 @@ Si el juego no es divertido en cajas grises, no lo va a arreglar una textura.
 > **Lo que M2 sí tiene ya:** los tres esqueletos rodean y se turnan para atacar en
 > vez de amontonarse, andan por la sala con malla de navegación en vez de empujar
 > los pilares, solo se despiertan si te VEN —de ahí que te los encuentres de uno
-> en uno—, se entra por el pasillo y morir se lee como perder. **Lo que le falta
-> es lo único que importa: jugarlo.** Las cuatro preguntas de la sección 13 que
-> dicen "se decide jugando M2" siguen sin respuesta, y hasta que la tengan el hito
-> no está cerrado.
+> en uno—, se entra por el pasillo y morir se lee como perder.
+>
+> **Jugado (11-09-2026).** Las cuatro preguntas tienen respuesta y están volcadas
+> en §5, §12 y §13. En corto: morir por la espalda se siente el precio de la
+> cámara y no se toca; la ballesta no se abusa y se queda en 6 virotes; el golpe
+> recibido no interrumpe a nadie y se queda así. La guardia alta tampoco ganaba
+> sola, pero **se añade la rotura de guardia** —24 de daño en 3 s, 10 s para
+> volver— porque aguantar no puede ser una postura sostenible.
+>
+> **Lo que le falta a la rotura es que se lea.** De momento solo la cuenta el arma,
+> que sale despedida y se queda caída mientras dura. El aviso claro es trabajo del
+> HUD, y el HUD está diseñado pero no hecho: ver `HUD.md`.
 >
 > **El menú de pausa (Escape) es de M8 y se ha adelantado.** Cuesta una tarde y
 > sin él no se puede probar nada sin matar el proceso.
@@ -316,10 +346,10 @@ Si el juego no es divertido en cajas grises, no lo va a arreglar una textura.
 | ~~El combate lento resulta aburrido~~ | M1 | **Ocurrió.** Se cambió a ligero rápido + pesado comprometido |
 | ~~Sin bloqueo ni esquiva, pelear contra 2+ enemigos es una carrera de daño~~ | M2 | **Resuelto.** Bloqueo de arco frontal y esquiva con 2 s de recarga |
 | ~~La tercera persona le quita al jugador la decisión de mirar~~ | M2 | **Ocurrió.** Se cambió a primera persona. Con la cámara detrás, ver el flanco y la espalda salía gratis y el pilar 3 no se sostenía |
-| En primera persona no ves lo que tienes detrás y morir por la espalda parece injusto | M2 | Es el precio de la cámara, no un fallo: el pesado del mandoble barre 300°, la densidad separa a los enemigos 9 m y el audio de M7 es lo que cierra el hueco. Si al jugar M2 muerto-por-la-espalda es la muerte más común, los enemigos tardan más en rodear |
-| El bloqueo vuelve el combate pasivo: aguantar con la guardia alta gana siempre | M2 | El arco de 120° y los imparables ya lo limitan. Si aun así pasa, la guardia pasa a romperse |
+| ~~En primera persona no ves lo que tienes detrás y morir por la espalda parece injusto~~ | M2 | **Probado. No ocurre:** se siente el precio de la cámara, no un fallo. No se toca la IA ni la densidad |
+| ~~El bloqueo vuelve el combate pasivo: aguantar con la guardia alta gana siempre~~ | M2 | **Probado. No ocurría**, pero la guardia pasa a romperse igual (§5): 24 de daño en 3 s la abren y tarda 10 s en volver |
 | El ogro es el único modelo no humanoide y Mixamo no vale | M4 | Se sustituye por un humanoide grande y deforme |
-| La ballesta rompe el pilar 1: matar de lejos es quitarse el riesgo | M2 | 6 virotes por incursión y sin reposición. Si aun así se abusa, bajan a 4 o pierde daño |
+| ~~La ballesta rompe el pilar 1: matar de lejos es quitarse el riesgo~~ | M2 | **Probado. No ocurre.** Los 6 virotes sin reposición bastan: se quedan en 6 |
 | Las armas ya no comparten animación y M7 sale más caro | M7 | Asumido: el barrido ancho, el machaque y el giro son movimientos distintos. A favor: en primera persona solo hay que animar brazos y arma, no un cuerpo entero. Si M7 no da de sí, la ballesta cae antes que ninguna |
 | El hub y el alijo se comen el tiempo | M3 | Se cae a: extraer = guardar partida, sin hub |
 
@@ -335,5 +365,5 @@ Si el juego no es divertido en cajas grises, no lo va a arreglar una textura.
   escudo todavía no existe como objeto, no renuncias a nada por llevarla. La
   decisión antorcha-o-escudo, que es el pilar 3 hecho mecánica, no se puede
   evaluar hasta M3.
-- ¿Debería el golpe recibido interrumpir a alguien? De momento no interrumpe ni
-  a ti ni al enemigo. Se decide jugando M2, no antes.
+- ~~¿Debería el golpe recibido interrumpir a alguien?~~ **Decidido jugando M2.**
+  No interrumpe a nadie, ni a ti ni al enemigo, y se queda así.

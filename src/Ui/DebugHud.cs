@@ -25,7 +25,7 @@ public partial class DebugHud : CanvasLayer
 	{
 		WeaponData weapon = _player.CurrentWeapon;
 		string name = weapon?.DisplayName ?? "ninguna";
-		string guard = _player.IsBlocking ? "ALTA" : "baja";
+		string guard = GuardText();
 		float cooldown = _player.DashCooldownRemaining;
 		string dash = cooldown > 0.0f ? $"{cooldown:0.0} s" : "lista";
 
@@ -34,6 +34,24 @@ public partial class DebugHud : CanvasLayer
 			+ $"Guardia   {guard}      Esquiva   {dash}{CommitLine()}\n"
 			+ AmmoLine(weapon)
 			+ "Clic izq: ligero   Clic der: pesado   Shift: bloquear   Q: esquivar";
+	}
+
+	/// <summary>
+	/// La guardia, con su carga. La carga se enseña en crudo porque es justo lo
+	/// que hay que mirar mientras se ajusta cuántos golpes aguanta: la pose del
+	/// arma dice que está rota, pero no dice lo cerca que estabas de que lo
+	/// estuviera.
+	/// </summary>
+	private string GuardText()
+	{
+		if (_player.IsGuardBroken)
+		{
+			return $"ROTA {_player.GuardBreakRemaining:0.0} s";
+		}
+
+		string load = _player.GuardLoadRatio > 0.0f ? $" [{_player.GuardLoadRatio * 100.0f:0} %]" : string.Empty;
+
+		return (_player.IsBlocking ? "ALTA" : "baja") + load;
 	}
 
 	/// <summary>

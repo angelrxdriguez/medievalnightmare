@@ -67,6 +67,10 @@ Definido en `DISENO.md`. Tres niveles, 3 tipos de enemigo, un jefe, 2-3 horas.
 Lo que no esta en ese documento no esta en el juego.
 Terminarlo tiene prioridad sobre ampliarlo.
 
+Los otros dos documentos cuelgan de ese: `ARTE.md` es el pase de aspecto y sus
+numeros medidos, y `HUD.md` es lo que puede haber en pantalla y —sobre todo— lo
+que no. Antes de anadir cualquier cosa a la interfaz, la lista de `HUD.md` §7.
+
 ## Entorno
 - Godot 4.7.2 mono: `C:\Users\angel.panadero\Tools\Godot_4.7.2_mono\`
 - .NET SDK 9 (lo exige el csproj que genera Godot 4.7).
