@@ -703,7 +703,7 @@ no aporta nada, pero se pagarían seis veces cada una.
 
 ## 9. Herramientas
 
-Seis escenas de desarrollo que no forman parte del juego y se pueden borrar sin
+Siete escenas de desarrollo que no forman parte del juego y se pueden borrar sin
 que se entere nadie. Están porque afinar una pose a ciegas es imposible y con
 esto se ve el resultado en veinte segundos.
 
@@ -714,7 +714,8 @@ esto se ve el resultado en veinte segundos.
 | `godot --path . tools/Perf.tscn -- cripta` | Los siete encuadres de §7 y el rango de fps. Acepta `cementerio` |
 | `godot --path . tools/Look.tscn -- cripta` | Encuadres fijos de un nivel, sin HUD, para MIRARLO sin jugarlo. Acepta `cementerio`. Es la única forma de comparar dos versiones de una iluminación: a ojo y jugando, la memoria de cómo se veía hace diez minutos no vale nada |
 | `godot --headless --path . tools/Nav.tscn -- cripta` | Comprueba que se puede ENTRAR al nivel andando, que los esqueletos andan por él en vez de empujar un pilar y que se reparten el turno. Acepta `cementerio`. Sin ventana y con código de salida: vale para automatizarlo |
-| `godot --headless --path . tools/Ui.tscn` | Comprueba la pausa y la muerte, que es lo único de la interfaz que no se ve en una captura |
+| `godot --headless --path . tools/Ui.tscn` | Comprueba la pausa y el final de la incursión, que es lo único de la interfaz que no se ve en una captura |
+| `godot --headless --path . tools/Raid.tscn` | El bucle de M3 entero: baja con la espada, coge la maza del suelo, extrae y comprueba en el archivo guardado que se vuelve a bajar con ella. Con `-- muerte` comprueba el otro final. Aparta el alijo de verdad mientras dura y lo devuelve al terminar |
 
 `Capture.gd` baja `Engine.time_scale` durante los golpes. No es capricho:
 guardar un PNG cuesta décimas de segundo REALES y el delta del motor es tiempo

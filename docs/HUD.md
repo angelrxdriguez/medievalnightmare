@@ -168,6 +168,11 @@ nada en pantalla. Tres formas de darle soporte, de más barata a menos:
 **La 1 es la recomendación** y la 3 es arte de nivel, no HUD. La 2 solo si al
 jugar M3 la decisión de extraer se toma a ciegas.
 
+> **Hecha en M3 (11-09-2026): la 1.** El inventario se abre con I, para el juego
+> y enseña lo que llevas puesto, lo que llevas encima y —solo delante del
+> arcón— lo guardado. Es un menú, no HUD: por eso puede tener letras. Durante el
+> combate no ha entrado nada nuevo en pantalla.
+
 ### 6.4. La antorcha, si acaba consumiéndose
 
 `DISENO.md` §13 tiene abierta la pregunta de si la antorcha se gasta. **Si se

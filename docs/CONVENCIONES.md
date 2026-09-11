@@ -62,6 +62,19 @@
 - Nodos en PascalCase.
 - Escena y script conviven en la misma carpeta de `src/`.
 
+## Partida guardada
+- **Lo que sobrevive a morir vive en `user://alijo.json`**, y lo escribe
+  `Core/Stash.cs`. Son dos cosas y no se parecen: el ALIJO, que no se pierde
+  nunca, y lo EQUIPADO, que se pierde al morir. Mientras no exista el campamento,
+  lo segundo se guarda ahí por no tener otro sitio (`DISENO.md` §9).
+- **Se escribe en cuanto cambia, no al salir.** Sacar algo del arcón y morir tres
+  segundos después tiene que costarte lo que sacaste; guardando al final de la
+  partida, morir sería la forma barata de deshacer.
+- **El identificador de un objeto es la ruta de su `.tres`.** Renombrar o mover
+  un arma la pierde de las partidas ya guardadas, y se avisa por consola al
+  cargar. Es el precio de no tener una tabla de identificadores que mantener a
+  mano, y a cambio añadir un objeto es soltar un archivo.
+
 ## Alcance
 Definido en `DISENO.md`. Tres niveles, 3 tipos de enemigo, un jefe, 2-3 horas.
 Lo que no esta en ese documento no esta en el juego.

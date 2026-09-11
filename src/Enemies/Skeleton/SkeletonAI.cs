@@ -114,6 +114,18 @@ public partial class SkeletonAI : CharacterBody3D
 	/// </summary>
 	[Export] public float CorpseSeconds { get; set; }
 
+	/// <summary>
+	/// Lo que suelta al morir, si suelta algo. Va vacío por defecto: un enemigo
+	/// que siempre deja algo convierte matar en la forma segura de ganar, y el
+	/// diseño quiere lo contrario —que lo que ganas venga de bajar más, no de
+	/// limpiar salas.
+	///
+	/// Lo suelta EN EL SITIO donde ha caído, sin lanzarlo ni buscarle un hueco
+	/// libre. Si queda medio enterrado en el montón de huesos, se ve igual: la
+	/// antorcha llega antes que tú.
+	/// </summary>
+	[Export] public ItemData Drop { get; set; }
+
 	private Node3D _visual;
 	private SkeletonRig _rig;
 	private MeleeHitbox _hitbox;
@@ -600,6 +612,8 @@ public partial class SkeletonAI : CharacterBody3D
 		_agent.AvoidanceEnabled = false;
 
 		_rig?.Collapse();
+
+		WorldItem.Spawn(this, Drop, GlobalPosition);
 
 		// El montón se queda. Un esqueleto que se desvanece deja la sala igual que
 		// estaba y no cuenta nada; los huesos por el suelo dicen dónde has estado y

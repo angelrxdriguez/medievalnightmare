@@ -13,12 +13,14 @@ public partial class DebugHud : CanvasLayer
 	private Label _label;
 	private PlayerController _player;
 	private Health _health;
+	private Inventory _inventory;
 
 	public override void _Ready()
 	{
 		_label = GetNode<Label>("Info");
 		_player = GetParent<PlayerController>();
 		_health = _player.GetNode<Health>("Health");
+		_inventory = _player.GetNode<Inventory>("Inventory");
 	}
 
 	public override void _Process(double delta)
@@ -30,7 +32,7 @@ public partial class DebugHud : CanvasLayer
 		string dash = cooldown > 0.0f ? $"{cooldown:0.0} s" : "lista";
 
 		_label.Text = $"Vida   {_health.Current:0} / {_health.Max:0}\n"
-			+ $"Arma   {name}   (1 / 2 / 3 / 4 para cambiar)\n"
+			+ $"Arma   {name}      Bolsa   {_inventory.Carried} / {_inventory.Capacity}   (I: inventario)\n"
 			+ $"Guardia   {guard}      Esquiva   {dash}{CommitLine()}\n"
 			+ AmmoLine(weapon)
 			+ "Clic izq: ligero   Clic der: pesado   Shift: bloquear   Q: esquivar";

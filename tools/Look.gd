@@ -27,6 +27,8 @@ const SHOTS := {
 		["esqueleto", Vector3(0.5, 0.05, -10), PI, -0.02],
 		["rincon", Vector3(-10, 0.05, 9), 2.0, -0.04],
 		["reja", Vector3(-6, 0.05, -1), 0.0, 0.55],
+		["arcon", Vector3(0, 0.05, -18.3), 0.0, -0.55],
+		["botin", Vector3(1.6, 0.05, -13.6), PI, -0.5],
 		["mano", Vector3(0, 0.05, -11), PI, -0.1],
 	],
 	"cementerio": [
@@ -68,6 +70,13 @@ func _run() -> void:
 	# ocupa un cuarto de la pantalla con numeros que no dicen nada de como se ve.
 	player.get_node("DebugHud").visible = false
 	player.get_node("Hud").visible = false
+
+	# Y fuera las salidas. Recorrer el nivel a teletransportes se aleja y vuelve,
+	# que es exactamente lo que arma una zona de extraccion: sin esto, el encuadre
+	# del pasillo termina la incursion y los siguientes salen con el fundido a
+	# negro puesto.
+	for zone in get_tree().get_nodes_in_group("extraccion"):
+		zone.set_physics_process(false)
 
 	var head: Node3D = player.get_node("Head")
 	var camera: Camera3D = head.get_node("Camera")

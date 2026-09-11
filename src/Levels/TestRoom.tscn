@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Environment" path="res://assets/environment/Dungeon.tres" id="1_env"]
 [ext_resource type="PackedScene" path="res://src/Player/Player.tscn" id="2_player"]
@@ -11,6 +11,12 @@
 [ext_resource type="PackedScene" path="res://src/Props/Grate.tscn" id="9_grate"]
 [ext_resource type="Script" path="res://src/Levels/LevelNavigation.cs" id="10_navigation"]
 [ext_resource type="Material" path="res://assets/materials/dungeon/StoneCorridor.tres" id="11_corridor"]
+[ext_resource type="PackedScene" path="res://src/Props/StashChest.tscn" id="12_chest"]
+[ext_resource type="PackedScene" path="res://src/Core/WorldItem.tscn" id="13_world_item"]
+[ext_resource type="Script" path="res://src/Levels/ExtractionZone.cs" id="14_extraction"]
+[ext_resource type="Resource" path="res://src/Player/Weapons/Maza.tres" id="15_mace"]
+[ext_resource type="Resource" path="res://src/Player/Weapons/Mandoble.tres" id="16_greatsword"]
+[ext_resource type="Resource" path="res://src/Player/Weapons/Ballesta.tres" id="17_crossbow"]
 
 [sub_resource type="Gradient" id="Gradient_dust"]
 offsets = PackedFloat32Array(0, 0.2, 0.8, 1)
@@ -291,6 +297,23 @@ draw_pass_1 = SubResource("QuadMesh_dust")
 script = ExtResource("10_navigation")
 BakeBounds = AABB(-22, -1, -24, 44, 4, 48)
 
+[node name="StashChest" parent="." instance=ExtResource("12_chest")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -20.2)
+
+[node name="Extraction" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -19.5)
+script = ExtResource("14_extraction")
+
+[node name="Loot" type="Node3D" parent="."]
+
+[node name="Mace" parent="Loot" instance=ExtResource("13_world_item")]
+transform = Transform3D(0.819, 0, 0.574, 0, 1, 0, -0.574, 0, 0.819, 0.8, 0, -11.5)
+Item = ExtResource("15_mace")
+
+[node name="Greatsword" parent="Loot" instance=ExtResource("13_world_item")]
+transform = Transform3D(0.574, 0, -0.819, 0, 1, 0, 0.819, 0, 0.574, -11, 1, 11.6)
+Item = ExtResource("16_greatsword")
+
 [node name="Player" parent="." instance=ExtResource("2_player")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.05, -19)
 
@@ -299,6 +322,7 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0.5, 0.05, -6)
 
 [node name="Skeleton2" parent="." instance=ExtResource("3_skeleton")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 9, 0.05, 3)
+Drop = ExtResource("17_crossbow")
 
 [node name="Skeleton3" parent="." instance=ExtResource("3_skeleton")]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -9.5, 0.05, 6)

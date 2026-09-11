@@ -58,7 +58,6 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	[Export] public float MaxPitchDegrees { get; set; } = 80.0f;
 
 	[ExportGroup("Combate")]
-	[Export] public Godot.Collections.Array<WeaponData> Weapons { get; set; } = new();
 
 	/// <summary>Margen para encadenar: pulsar durante la recuperación no se pierde.</summary>
 	[Export] public float AttackBufferTime { get; set; } = 0.25f;
@@ -134,6 +133,7 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	private Node3D _head;
 	private MeleeHitbox _hitbox;
 	private Health _health;
+	private Inventory _inventory;
 
 	private float _gravity;
 	private float _jumpVelocity;
@@ -147,7 +147,6 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	private float _phaseDuration;
 	private bool _heavySwing;
 	private WeaponData _swingWeapon;
-	private int _weaponIndex;
 	private float _attackBuffer;
 	private bool _bufferedHeavy;
 	private bool _blocking;
@@ -158,12 +157,15 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	private float _dashCooldownTimer;
 	private Vector3 _dashDirection;
 	private float _reloadTimer;
-	private int[] _ammo = [];
-	private int _swingSlot;
 	private bool _dead;
 
-	public WeaponData CurrentWeapon =>
-		Weapons.Count > 0 ? Weapons[Mathf.Clamp(_weaponIndex, 0, Weapons.Count - 1)] : null;
+	/// <summary>
+	/// El arma de la ranura principal, y nada más. El jugador no lleva una lista
+	/// de armas: lleva la que se ha puesto, y cambiarla es abrir el inventario.
+	/// Sin arma equipada no hay golpe, que es exactamente lo que pasa si te la
+	/// quitas.
+	/// </summary>
+	public WeaponData CurrentWeapon => _inventory?.Main as WeaponData;
 
 	/// <summary>Guardia alta. Se cae sola al atacar, al esquivar y al morir.</summary>
 	public bool IsBlocking => _blocking;
@@ -216,9 +218,6 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	/// <summary>El golpe en curso es el pesado. Vale también durante la recuperación.</summary>
 	public bool IsHeavySwing => _heavySwing;
 
-	/// <summary>Arma en la mano. Cambia en cuanto pulsas, aunque haya un golpe en curso.</summary>
-	public int WeaponIndex => WeaponSlot;
-
 	/// <summary>Lo recorrido de la recarga, de 0 a 1. Uno es lista para disparar.</summary>
 	public float ReloadProgress
 	{
@@ -230,10 +229,8 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		}
 	}
 
-	private int WeaponSlot => Mathf.Clamp(_weaponIndex, 0, Weapons.Count - 1);
-
 	/// <summary>Virotes que te quedan. Sin munición la ballesta es peso muerto.</summary>
-	public int CurrentAmmo => _ammo.Length > 0 ? _ammo[WeaponSlot] : 0;
+	public int CurrentAmmo => _inventory?.AmmoOf(CurrentWeapon) ?? 0;
 
 	public int CurrentAmmoCapacity => CurrentWeapon?.AmmoCapacity ?? 0;
 
@@ -244,13 +241,7 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		_hitbox = GetNode<MeleeHitbox>("Visual/AttackHitbox");
 		_health = GetNode<Health>("Health");
 		_health.Died += OnDied;
-
-		// La munición es por incursión y no se repone: entras con lo que entras.
-		_ammo = new int[Weapons.Count];
-		for (int i = 0; i < Weapons.Count; i++)
-		{
-			_ammo[i] = Weapons[i]?.AmmoCapacity ?? 0;
-		}
+		_inventory = GetNode<Inventory>("Inventory");
 
 		_gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle() * GravityScale;
 		_jumpVelocity = Mathf.Sqrt(2.0f * _gravity * JumpHeight);
@@ -469,10 +460,6 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 
 		_reloadTimer = Mathf.Max(0.0f, _reloadTimer - dt);
 
-		// Fuera del if: cambiar de arma a mitad de golpe no debe perderse. Surte
-		// efecto en el golpe siguiente, nunca en el que ya está en curso.
-		SelectWeaponFromInput();
-
 		_attackBuffer -= dt;
 		if (Input.IsActionJustPressed("attack_light"))
 		{
@@ -550,26 +537,6 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		return _heavySwing ? HeavyRecovery : LightRecovery;
 	}
 
-	private void SelectWeaponFromInput()
-	{
-		if (Input.IsActionJustPressed("weapon_1"))
-		{
-			_weaponIndex = 0;
-		}
-		else if (Input.IsActionJustPressed("weapon_2"))
-		{
-			_weaponIndex = 1;
-		}
-		else if (Input.IsActionJustPressed("weapon_3"))
-		{
-			_weaponIndex = 2;
-		}
-		else if (Input.IsActionJustPressed("weapon_4"))
-		{
-			_weaponIndex = 3;
-		}
-	}
-
 	/// <summary>
 	/// Sin virotes o con la ballesta a medio recargar no sale nada. El botón se
 	/// queda muerto a propósito: es la única forma de que gastar munición pese.
@@ -593,7 +560,6 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 
 	private void StartSwing(bool heavy)
 	{
-		_swingSlot = WeaponSlot;
 		_swingWeapon = CurrentWeapon;
 
 		// La ballesta no tiene golpe pesado: los dos botones sueltan el mismo virote.
@@ -643,7 +609,7 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 			return;
 		}
 
-		_ammo[_swingSlot] = Mathf.Max(0, _ammo[_swingSlot] - 1);
+		_inventory.SpendAmmo(_swingWeapon);
 
 		// Sale del ojo y en la dirección exacta de la mira, cabeceo incluido: es lo
 		// que hace que apuntar con la ballesta consista en poner la cruz encima.
@@ -741,8 +707,8 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 
 	/// <summary>
 	/// Se queda quieto y suelta todo lo que tuviera empezado. Contar la muerte y
-	/// reiniciar es cosa de <see cref="Ui.DeathScreen"/>: quien sabe cuándo se ha
-	/// terminado de contar es quien la está contando.
+	/// reiniciar es cosa de <see cref="Ui.RaidEndScreen"/>: quien sabe cuándo se
+	/// ha terminado de contar es quien la está contando.
 	/// </summary>
 	private void OnDied()
 	{

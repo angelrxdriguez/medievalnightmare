@@ -1,0 +1,54 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Material" path="res://assets/materials/weapons/Oak.tres" id="1_oak"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/RustedIron.tres" id="2_iron"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chest"]
+size = Vector3(1.12, 0.74, 0.62)
+
+[sub_resource type="BoxMesh" id="BoxMesh_body"]
+material = ExtResource("1_oak")
+size = Vector3(1.1, 0.6, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lid"]
+material = ExtResource("1_oak")
+size = Vector3(1.14, 0.16, 0.64)
+
+[sub_resource type="BoxMesh" id="BoxMesh_band"]
+material = ExtResource("2_iron")
+size = Vector3(0.07, 0.76, 0.63)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lock"]
+material = ExtResource("2_iron")
+size = Vector3(0.16, 0.2, 0.05)
+
+[node name="StashChest" type="StaticBody3D" groups=["alijo"]]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37, 0)
+shape = SubResource("BoxShape3D_chest")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+mesh = SubResource("BoxMesh_body")
+
+[node name="Lid" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.66, 0)
+mesh = SubResource("BoxMesh_lid")
+
+[node name="BandWest" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.34, 0.36, 0)
+mesh = SubResource("BoxMesh_band")
+instance_shader_parameters/piece_seed = 0.21
+
+[node name="BandEast" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34, 0.36, 0)
+mesh = SubResource("BoxMesh_band")
+instance_shader_parameters/piece_seed = 0.78
+
+[node name="Lock" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.58, 0.3)
+mesh = SubResource("BoxMesh_lock")
+instance_shader_parameters/piece_seed = 0.47

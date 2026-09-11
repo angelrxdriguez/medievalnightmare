@@ -18,9 +18,9 @@ namespace MedievalNightmare.Ui;
 ///   primer movimiento.
 /// - EL PROPIO NODO NO SE PAUSA. Todo el árbol se para menos esto, que es lo
 ///   único que puede despausarlo.
-/// - MUERTO NO SE PAUSA. La pantalla de muerte se está contando sola y tiene su
-///   propio reinicio: dejar abrir la pausa encima es acabar con dos reinicios
-///   pedidos a la vez.
+/// - CON LA INCURSIÓN ACABADA NO SE PAUSA. La pantalla de fin se está contando
+///   sola y tiene su propio reinicio: dejar abrir la pausa encima es acabar con
+///   dos reinicios pedidos a la vez.
 /// </summary>
 public partial class PauseMenu : CanvasLayer
 {
@@ -133,9 +133,10 @@ public partial class PauseMenu : CanvasLayer
 			return;
 		}
 
-		// Muerto no se pausa: la pantalla de muerte ya está contando y tiene su
-		// propio reinicio.
-		if (_health.IsDead)
+		// Con la incursión acabándose no se pausa: la pantalla de fin ya está
+		// contando y tiene su propio reinicio. Vale para morir y para extraer, que
+		// además para el árbol entero.
+		if (_health.IsDead || RaidEndScreen.IsRaidEnding(GetTree()))
 		{
 			return;
 		}

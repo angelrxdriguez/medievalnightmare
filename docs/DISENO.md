@@ -267,6 +267,24 @@ enemigo rápido en un pasillo estrecho no es difícil, es injusto.
 
 Terminas el juego matando al Guardián del Pozo y extrayendo.
 
+> **Cómo está hecho en M3, sin campamento (11-09-2026).** El hub se ha dejado
+> para después —es el riesgo de la sección 12: el campamento se come el tiempo—
+> y el bucle se sostiene sin él con dos reglas que conviene tener delante:
+>
+> - **Al extraer, la bolsa se guarda y lo equipado se queda puesto.** Sin
+>   campamento no hay ninguna pantalla donde elegir con qué bajas, así que bajas
+>   con lo que llevaras puesto al salir. Morir sigue costando las dos cosas.
+> - **El alijo es un arcón y está en la entrada del nivel.** Se abre con el
+>   inventario estando delante de él, y es lo único que permite sacar lo guardado
+>   o dejar algo a salvo antes de bajar. Tres metros más allá, lo que llevas
+>   encima ya está en juego.
+>
+> **La salida es la entrada**, el mismo pasillo por el que se baja, y no funciona
+> hasta que has entrado en la sala: si no, la incursión se acabaría en el sitio
+> donde empieza.
+>
+> Cuando exista el campamento, esto no cambia de reglas: cambia de sitio.
+
 ## 10. Fuera de la versión 1.0
 
 Esta lista es la parte más importante del documento.
@@ -338,6 +356,21 @@ Si el juego no es divertido en cajas grises, no lo va a arreglar una textura.
 >
 > **El menú de pausa (Escape) es de M8 y se ha adelantado.** Cuesta una tarde y
 > sin él no se puede probar nada sin matar el proceso.
+
+> **M3 empezado (11-09-2026).** Con M2 a falta de una partida de comprobación
+> —la rotura de guardia se cuenta con el arma caída y eso hay que verlo jugando—,
+> se ha montado M3 por la ruta corta: inventario de 12 huecos, las tres ranuras
+> de equipo, botín en el suelo y del esqueleto, arcón y extracción. Sin sala de
+> campamento; las dos reglas que eso cambia están en §9.
+>
+> **El criterio del hito se cumple y se comprueba sin manos.**
+> `godot --headless --path . tools/Raid.tscn` baja con la espada, coge la maza,
+> extrae y mira en el archivo guardado que se vuelve a bajar con la maza. Con
+> `-- muerte` comprueba el otro final: que morir cuesta la bolsa Y lo equipado, y
+> que el alijo no se toca.
+>
+> **Aun así, ninguno de los dos hitos se marca hasta jugarlo.** Que una prueba
+> pase no es el criterio; el criterio es una partida.
 
 ## 12. Riesgos
 

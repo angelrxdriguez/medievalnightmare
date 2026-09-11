@@ -6,10 +6,26 @@ extends Node3D
 
 const ROOM := preload("res://src/Levels/TestRoom.tscn")
 
+# Las armas ya no se cambian con las teclas 1-4: se equipan desde el inventario,
+# que es lo unico que las lleva desde M3.
+const SWORD := preload("res://src/Player/Weapons/EspadaCorta.tres")
+const MACE := preload("res://src/Player/Weapons/Maza.tres")
+const GREATSWORD := preload("res://src/Player/Weapons/Mandoble.tres")
+const CROSSBOW := preload("res://src/Player/Weapons/Ballesta.tres")
+
+const SAVE := "user://alijo.json"
+const BACKUP := "user://alijo.json.bak"
+
 var _shot := 0
+var _inventory: Node
 
 
 func _ready() -> void:
+	# Equiparse escribe en la partida guardada, y esta herramienta se pone las
+	# cuatro armas: sin apartar el alijo, hacer capturas te cambia lo que llevabas
+	# puesto. Se devuelve al terminar.
+	_stash_aside()
+
 	add_child(ROOM.instantiate())
 	call_deferred("_run")
 
@@ -17,6 +33,13 @@ func _ready() -> void:
 func _run() -> void:
 	await _frames(40)
 	var player: Node = get_tree().get_first_node_in_group("player")
+	_inventory = player.get_node("Inventory")
+
+	# Fuera las salidas. Esta herramienta se planta en la sala y luego vuelve al
+	# pasillo a fotografiar el arcon, que es justo la maniobra que extrae: sin
+	# esto, la incursion termina a mitad de sesion de fotos.
+	for zone in get_tree().get_nodes_in_group("extraccion"):
+		zone.set_physics_process(false)
 
 	# Dentro de la sala y no donde empiece la partida. El jugador arranca en el
 	# pasillo, que es un tubo de 2,4 m: con la antorcha en la mano, las paredes
@@ -26,18 +49,18 @@ func _run() -> void:
 	await _frames(10)
 
 	await _swing("espada", "attack_light", 8, 3)
-	_press("weapon_2")
+	_equip(MACE)
 	await _frames(30)
 	await _swing("maza", "attack_light", 8, 3)
-	_press("weapon_3")
+	_equip(GREATSWORD)
 	await _frames(30)
 	await _swing("mandoble", "attack_heavy", 10, 9)
-	_press("weapon_4")
+	_equip(CROSSBOW)
 	await _frames(30)
 	await _swing("ballesta", "attack_light", 8, 6)
 
 	# Guardia y esquiva, que tambien tienen pose.
-	_press("weapon_1")
+	_equip(SWORD)
 	await _frames(30)
 	Input.action_press("block")
 	await _frames(14)
@@ -68,7 +91,70 @@ func _run() -> void:
 	await _frames(110)
 	await _shoot("sala_muerte_monton")
 
+	await _inventory_shots(player)
+
+	_stash_back()
 	get_tree().quit()
+
+
+# El inventario es lo unico de M3 que hay que MIRAR, y no se ve jugando: para el
+# juego, asi que una captura de la sala no lo enseña nunca. Dos tomas, porque son
+# dos pantallas distintas: la de la mazmorra y la de delante del arcon, que es la
+# unica que enseña el alijo.
+func _inventory_shots(player: Node3D) -> void:
+	_key(KEY_I)
+	await _frames(8)
+	await _shoot("inventario")
+	_key(KEY_I)
+	await _frames(8)
+
+	player.global_position = Vector3(0, 0.05, -19)
+	_inventory.StoreInStash(0)
+	await _frames(8)
+
+	_key(KEY_I)
+	await _frames(8)
+	await _shoot("inventario_arcon")
+	_key(KEY_I)
+	await _frames(8)
+
+
+# Una tecla de verdad y no `Input.action_press`: lo segundo solo cambia el estado
+# del boton y no llega a `_unhandled_input`, que es quien abre el inventario.
+func _key(code: int) -> void:
+	var event := InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = code
+	event.pressed = true
+	get_viewport().push_input(event)
+	await _frames(2)
+
+	event = InputEventKey.new()
+	event.keycode = code
+	event.physical_keycode = code
+	event.pressed = false
+	get_viewport().push_input(event)
+
+
+func _stash_aside() -> void:
+	if not FileAccess.file_exists(SAVE):
+		return
+
+	var dir := DirAccess.open("user://")
+	if dir != null:
+		dir.rename(SAVE, BACKUP)
+
+
+func _stash_back() -> void:
+	var dir := DirAccess.open("user://")
+	if dir == null:
+		return
+
+	if FileAccess.file_exists(SAVE):
+		dir.remove(SAVE)
+
+	if FileAccess.file_exists(BACKUP):
+		dir.rename(BACKUP, SAVE)
 
 
 func _swing(name: String, action: String, count: int, gap: int) -> void:
@@ -91,10 +177,12 @@ func _find_skeleton() -> Node3D:
 	return null
 
 
-func _press(action: String) -> void:
-	Input.action_press(action)
-	await _frames(2)
-	Input.action_release(action)
+# Meter en la bolsa y ponerse lo ultimo que ha entrado, que es lo que hace el
+# jugador con la pantalla de inventario abierta. Acaba dejando un arma repetida
+# en la bolsa y da igual: aqui no se mira la bolsa, se miran las poses.
+func _equip(item: Resource) -> void:
+	_inventory.TryAdd(item)
+	_inventory.Equip(_inventory.Carried - 1)
 
 
 func _frames(count: int) -> void:

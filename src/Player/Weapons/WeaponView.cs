@@ -136,7 +136,7 @@ public partial class WeaponView : Node3D
 	private PlayerController _player;
 	private Node3D _head;
 	private WeaponModel _model;
-	private int _shownIndex = -1;
+	private WeaponData _shown;
 
 	private float _bobPhase;
 	private float _breathPhase;
@@ -170,7 +170,7 @@ public partial class WeaponView : Node3D
 		_lastPitch = _head.Rotation.X;
 		_player.GuardBroken += OnGuardBroken;
 
-		SwapTo(_player.WeaponIndex, instant: true);
+		SwapTo(instant: true);
 	}
 
 	public override void _Process(double delta)
@@ -240,13 +240,17 @@ public partial class WeaponView : Node3D
 			// Es lo único que evita ver una espada volverse maza a media pantalla.
 			if (previous > SwapSeconds * 0.5f && _swapTimer <= SwapSeconds * 0.5f)
 			{
-				SwapTo(_player.WeaponIndex, instant: false);
+				SwapTo(instant: false);
 			}
 
 			return;
 		}
 
-		if (_player.WeaponIndex != _shownIndex)
+		// Se compara el ARMA, no un número de hueco: ahora el arma sale del
+		// inventario y puede volver a la mano desde una fila distinta de la que
+		// salió. Lo que tiene que disparar el cambio es que la mano lleve otra
+		// cosa, no que el inventario se haya reordenado.
+		if (_player.CurrentWeapon != _shown)
 		{
 			_swapTimer = SwapSeconds;
 		}
@@ -444,9 +448,9 @@ public partial class WeaponView : Node3D
 	/// Deja en la mano el arma del hueco pedido. Instantáneo al empezar la partida
 	/// y en el punto bajo del cambio; nunca a media pantalla.
 	/// </summary>
-	private void SwapTo(int index, bool instant)
+	private void SwapTo(bool instant)
 	{
-		_shownIndex = index;
+		_shown = _player.CurrentWeapon;
 
 		if (_model != null)
 		{
@@ -454,7 +458,7 @@ public partial class WeaponView : Node3D
 			_model = null;
 		}
 
-		PackedScene scene = _player.CurrentWeapon?.ViewModel;
+		PackedScene scene = _shown?.ViewModel;
 		if (scene == null)
 		{
 			return;

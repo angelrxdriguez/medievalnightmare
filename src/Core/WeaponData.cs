@@ -23,9 +23,18 @@ public enum WeaponKind
 /// mismo con el pesado y es la respuesta a estar rodeado.
 /// </summary>
 [GlobalClass]
-public partial class WeaponData : Resource
+public partial class WeaponData : ItemData
 {
-	[Export] public string DisplayName { get; set; } = "Arma";
+	/// <summary>
+	/// Un arma va siempre en la ranura principal. Se fija aquí y no en cada
+	/// <c>.tres</c> porque no es una propiedad del arma: es lo que ES un arma.
+	/// </summary>
+	public WeaponData()
+	{
+		DisplayName = "Arma";
+		Slot = EquipSlot.Main;
+	}
+
 	[Export] public WeaponKind Kind { get; set; } = WeaponKind.Melee;
 	[Export] public float Damage { get; set; } = 18.0f;
 
