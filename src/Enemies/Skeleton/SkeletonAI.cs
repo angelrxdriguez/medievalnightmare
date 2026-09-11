@@ -105,6 +105,16 @@ public partial class SkeletonAI : CharacterBody3D
 	/// para el ogro y el jefe, que obligan a esquivar en vez de aguantar.</summary>
 	[Export] public bool Unblockable { get; set; }
 
+	[ExportGroup("Encajar")]
+
+	/// <summary>
+	/// Lo que se queda cortado después de encajar un golpe pesado: ni ataca, ni
+	/// anda, ni gira. Es lo que compra el pesado además del daño, y lo que le da
+	/// identidad frente a dos ligeros que suman lo mismo. Corto a propósito:
+	/// da para reposicionarse, no para encadenar pesados gratis.
+	/// </summary>
+	[Export] public float StaggerSeconds { get; set; } = 0.6f;
+
 	[ExportGroup("Muerte")]
 
 	/// <summary>
@@ -135,9 +145,14 @@ public partial class SkeletonAI : CharacterBody3D
 	private Node3D _target;
 
 	private float _gravity;
+	private const string WindupSound = "res://assets/audio/skel_windup.wav";
+	private const string SwingSound = "res://assets/audio/skel_swing.wav";
+	private const string CollapseSound = "res://assets/audio/bones_collapse.wav";
+
 	private CombatPhase _phase = CombatPhase.Idle;
 	private float _phaseTimer;
 	private float _phaseDuration;
+	private float _stunTimer;
 	private bool _dead;
 
 	private Vector3 _home;
@@ -176,6 +191,7 @@ public partial class SkeletonAI : CharacterBody3D
 		_marker = _visual.FindChild("Telegraph", true, false) as TelegraphMarker;
 		_health = GetNode<Health>("Health");
 		_health.Damaged += OnDamaged;
+		_health.Staggered += OnStaggered;
 		_health.Died += OnDied;
 
 		_gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle() * 2.0f;
@@ -250,6 +266,19 @@ public partial class SkeletonAI : CharacterBody3D
 
 		UpdateAwareness(dt, distance);
 		UpdateTurn(dt, distance);
+
+		// Aturdido: el pesado del jugador le ha cortado lo que estuviera haciendo.
+		// Ni ataca, ni anda, ni gira; solo el respingo grande del rig. Es la
+		// ventana que el pesado ha comprado, y se paga sola: mientras dura, el
+		// jugador también está en su recuperación.
+		_stunTimer = Mathf.Max(0.0f, _stunTimer - dt);
+		if (_stunTimer > 0.0f)
+		{
+			Advance(Vector3.Zero);
+			_rig?.Drive(_phase, PhaseProgress);
+			return;
+		}
+
 		UpdateSwing(dt, distance);
 
 		// Quieto mientras dura el golpe. Ningún ataque se cancela, tampoco el suyo:
@@ -497,6 +526,11 @@ public partial class SkeletonAI : CharacterBody3D
 			if (_pressing && _aware && distance <= AttackRange)
 			{
 				EnterPhase(CombatPhase.Windup, Windup);
+
+				// La anticipación también se OYE, y en 3D: con la niebla y la
+				// primera persona, el crujido por la espalda es la única telegrafía
+				// que te llega de lo que no estás mirando.
+				Sfx.PlayAt(this, WindupSound, GlobalPosition + Vector3.Up * 1.4f);
 			}
 
 			return;
@@ -512,6 +546,7 @@ public partial class SkeletonAI : CharacterBody3D
 		{
 			case CombatPhase.Windup:
 				EnterPhase(CombatPhase.Active, Active);
+				Sfx.PlayAt(this, SwingSound, GlobalPosition + Vector3.Up * 1.2f);
 				_hitbox.Open(Damage, AttackRange, ArcDegrees, Active, Unblockable);
 				break;
 
@@ -572,6 +607,25 @@ public partial class SkeletonAI : CharacterBody3D
 	/// Un enemigo que encaja los golpes sin inmutarse no se lee como duro, se lee
 	/// como que no le has dado.
 	/// </summary>
+	/// <summary>
+	/// Un pesado le ha entrado. El único golpe que interrumpe: cierra lo que
+	/// tuviera abierto y lo deja clavado <see cref="StaggerSeconds"/>. El ligero
+	/// no pasa por aquí a propósito —solo estremece—, porque si todo cortara,
+	/// spamear el ligero sería la respuesta a todo (probado en M2).
+	/// </summary>
+	private void OnStaggered()
+	{
+		if (_dead)
+		{
+			return;
+		}
+
+		_hitbox.Close();
+		EnterPhase(CombatPhase.Idle, 0.0f);
+		_stunTimer = StaggerSeconds;
+		_rig?.Flinch(2.6f);
+	}
+
 	private void OnDamaged(float amount, float remaining)
 	{
 		_rig?.Flinch();
@@ -612,6 +666,7 @@ public partial class SkeletonAI : CharacterBody3D
 		_agent.AvoidanceEnabled = false;
 
 		_rig?.Collapse();
+		Sfx.PlayAt(this, CollapseSound, GlobalPosition + Vector3.Up * 0.5f);
 
 		WorldItem.Spawn(this, Drop, GlobalPosition);
 

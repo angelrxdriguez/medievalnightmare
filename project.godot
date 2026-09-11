@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="medievalnightmare"
-run/main_scene="res://src/Levels/TestRoom.tscn"
+run/main_scene="res://src/Levels/CombatArena.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 

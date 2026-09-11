@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://src/Player/PlayerController.cs" id="1_player"]
 [ext_resource type="Material" path="res://assets/materials/greybox/GreyboxGrid.tres" id="2_grid"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://src/Ui/Crosshair.cs" id="13_crosshair"]
 [ext_resource type="Script" path="res://src/Props/TorchLight.cs" id="14_torch"]
 [ext_resource type="Script" path="res://src/Player/Weapons/WeaponView.cs" id="16_weapon_view"]
+[ext_resource type="Script" path="res://src/Player/CameraFeedback.cs" id="22_camera_feedback"]
 [ext_resource type="Material" path="res://assets/materials/dungeon/Flame.tres" id="15_flame"]
 [ext_resource type="Material" path="res://assets/materials/weapons/Oak.tres" id="17_oak"]
 [ext_resource type="Script" path="res://src/Ui/PauseMenu.cs" id="18_pause"]
@@ -112,6 +113,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
 cull_mask = 1048573
 fov = 70.0
 near = 0.05
+script = ExtResource("22_camera_feedback")
 
 [node name="Torch" type="Node3D" parent="Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.46, -0.78, -0.5)

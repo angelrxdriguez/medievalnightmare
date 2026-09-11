@@ -152,9 +152,33 @@ borde de la pantalla se tiñe de rojo**, con más fuerza cuanto más te ha quita
 y **late solo** por debajo del 40 % de vida, más rápido cuanto peor estás. No hay
 barra de vida ni números en pantalla: la vida se lee mirando el borde.
 
-Tus golpes tampoco interrumpen al enemigo. **Probado en M2 y se queda así:**
-castigar la anticipación ajena no sale gratis, porque el rato que pasas pegando
-es rato que no estás defendiendo.
+**Tus golpes se leen siempre, pero solo el pesado interrumpe.** Todo impacto
+tuyo provoca un respingo visual en el enemigo: sin él, no se sabe si has dado.
+El ligero NO le corta la lógica —lo de M2 sigue vigente: si todo interrumpiera,
+spamear el ligero sería la respuesta a todo—. El **pesado sí interrumpe**: corta
+lo que el enemigo estuviera haciendo y lo deja clavado **0,6 s**. Es lo que
+compra el pesado además del daño, y es pilar 1: la apuesta grande paga distinto,
+no solo más.
+
+### La sensación de impacto
+
+El diseño de arriba no cambia; esto es lo que hace que se SIENTA. Todo sale del
+mismo instante —el golpe conecta— para que no pueda desincronizarse:
+
+- **Parón de impacto:** el juego entero se congela unas centésimas al conectar
+  (50 ms el ligero, 90 el pesado). Es lo que separa cortar carne de cortar aire.
+- **La cámara acusa:** una coz corta al conectar (el pesado además abre el campo
+  de visión un instante), y temblor sin dirección al encajar tú, proporcional al
+  daño. Bloquear casi no tiembla: defenderse bien tiene que sentirse mejor.
+- **El arma muerde:** al conectar rebota hacia atrás como clavada en algo.
+- **La mira confirma:** la cruz se abre un instante al conectar. Con niebla y a
+  contraluz es la única confirmación garantizada.
+- **Chispas y destello:** esquirlas y una luz de una décima en el punto del
+  golpe. En una mazmorra a oscuras, el destello ilumina al enemigo justo en el
+  fotograma del contacto.
+- **Sonido:** cada golpe, bloqueo, rotura y anticipación enemiga suena (síntesis
+  placeholder hasta M7). La anticipación del esqueleto suena EN 3D: oírla por la
+  espalda es telegrafía que la primera persona no puede dar de otra forma.
 
 ## 6. Jugador
 

@@ -159,6 +159,8 @@ public partial class SkeletonRig : Node3D
 	private float _stepTimer;
 	private float _collapseTimer;
 	private float _flinch;
+	private float _flinchDuration;
+	private float _flinchStrength = 1.0f;
 	private CombatPhase _phase = CombatPhase.Idle;
 	private float _progress;
 	private bool _collapsed;
@@ -268,17 +270,22 @@ public partial class SkeletonRig : Node3D
 	/// jugador no es "es duro" sino "no le he dado", que es lo peor que puede pasar
 	/// en un combate cuyo golpe ligero dura 0,10 s.
 	///
-	/// NO interrumpe el ataque a propósito: el esqueleto se compromete igual que el
-	/// jugador y un golpe a tiempo no cancela el suyo. Solo se estremece.
+	/// Aquí no se interrumpe nada: el rig solo enseña. Si el golpe corta el ataque
+	/// —el pesado del jugador lo hace— eso lo decide la IA, y entonces pide el
+	/// respingo grande subiendo <paramref name="strength"/>.
 	/// </summary>
-	public void Flinch()
+	/// <param name="strength">Tamaño y duración del respingo. Uno es el golpe
+	/// normal; el aturdimiento del pesado entra con bastante más.</param>
+	public void Flinch(float strength = 1.0f)
 	{
 		if (_collapsed)
 		{
 			return;
 		}
 
-		_flinch = FlinchSeconds;
+		_flinch = FlinchSeconds * strength;
+		_flinchDuration = _flinch;
+		_flinchStrength = strength;
 	}
 
 	/// <summary>
@@ -378,8 +385,8 @@ public partial class SkeletonRig : Node3D
 		// El respingo baja recto de golpe a cero y no se suaviza con nada. Como la
 		// pose se escribe a doce por segundo, esos 0,18 s son dos fotogramas y pico:
 		// se ve el tirón y se ve la vuelta, que es justo lo que hacía la época.
-		float jolt = FlinchSeconds > 0.0f
-			? Mathf.DegToRad(FlinchDegrees) * (_flinch / FlinchSeconds)
+		float jolt = _flinchDuration > 0.0f
+			? Mathf.DegToRad(FlinchDegrees) * _flinchStrength * (_flinch / _flinchDuration)
 			: 0.0f;
 
 		float swing = Mathf.Sin(_stride) * _amplitude;

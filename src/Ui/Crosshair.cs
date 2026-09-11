@@ -34,8 +34,15 @@ public partial class Crosshair : Control
 
 	[Export] public float Thickness { get; set; } = 2.0f;
 
+	/// <summary>Lo que se abre la cruz al conectar un golpe. Es la confirmación
+	/// de impacto: sin ella, con niebla y a contraluz no sabes si has dado.</summary>
+	[Export] public float PulsePixels { get; set; } = 5.0f;
+
+	[Export] public float PulseFadeSeconds { get; set; } = 0.16f;
+
 	private PlayerController _player;
 	private CombatPhase _phase = CombatPhase.Idle;
+	private float _pulse;
 
 	public override void _Ready()
 	{
@@ -43,10 +50,27 @@ public partial class Crosshair : Control
 		// así puede mudarse al HUD del nivel sin tocar nada.
 		_player = GetTree().GetFirstNodeInGroup("player") as PlayerController;
 		Resized += QueueRedraw;
+
+		if (_player != null)
+		{
+			_player.MeleeHit += OnMeleeHit;
+		}
+	}
+
+	private void OnMeleeHit(bool heavy)
+	{
+		_pulse = 1.0f;
+		QueueRedraw();
 	}
 
 	public override void _Process(double delta)
 	{
+		if (_pulse > 0.0f)
+		{
+			_pulse = Mathf.Max(0.0f, _pulse - (float)delta / PulseFadeSeconds);
+			QueueRedraw();
+		}
+
 		CombatPhase phase = _player?.Phase ?? CombatPhase.Idle;
 
 		// Redibujar solo al cambiar de fase. Son cuatro líneas, pero repintarlas
@@ -73,7 +97,9 @@ public partial class Crosshair : Control
 
 	private void DrawArm(Vector2 center, Vector2 direction, Color color)
 	{
-		DrawLine(center + direction * Gap, center + direction * (Gap + ArmLength), color, Thickness);
+		float gap = Gap + _pulse * PulsePixels;
+
+		DrawLine(center + direction * gap, center + direction * (gap + ArmLength), color, Thickness);
 	}
 
 	private Color PhaseColor()

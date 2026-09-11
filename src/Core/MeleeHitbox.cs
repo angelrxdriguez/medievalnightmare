@@ -17,6 +17,13 @@ namespace MedievalNightmare.Core;
 /// </summary>
 public partial class MeleeHitbox : Area3D
 {
+	/// <summary>
+	/// Ha conectado con alguien. El punto es aproximado —el pecho del alcanzado,
+	/// del lado por el que llega el golpe—: para chispas y sonido sobra, y el
+	/// barrido no sabe más que eso.
+	/// </summary>
+	[Signal] public delegate void HitLandedEventHandler(Node3D body, Vector3 point);
+
 	/// <summary>Alto del cilindro. Cubre a un humanoide de 1,8 m de pies a cabeza.</summary>
 	[Export] public float Height { get; set; } = 2.0f;
 
@@ -30,6 +37,7 @@ public partial class MeleeHitbox : Area3D
 	private float _duration;
 	private float _elapsed;
 	private bool _unblockable;
+	private bool _stagger;
 	private bool _open;
 
 	public override void _Ready()
@@ -47,7 +55,8 @@ public partial class MeleeHitbox : Area3D
 	/// <param name="arcDegrees">Anchura del barrido. Estrecho exige apuntar; ancho barre a varios.</param>
 	/// <param name="duration">Lo que dura la ventana activa: el filo la recorre entera.</param>
 	/// <param name="unblockable">Un golpe imparable atraviesa el bloqueo: hay que esquivarlo.</param>
-	public void Open(float damage, float range, float arcDegrees, float duration, bool unblockable = false)
+	/// <param name="stagger">El golpe corta lo que el alcanzado estuviera haciendo. Solo lo lleva el pesado del jugador.</param>
+	public void Open(float damage, float range, float arcDegrees, float duration, bool unblockable = false, bool stagger = false)
 	{
 		_damage = damage;
 		_range = range;
@@ -55,6 +64,7 @@ public partial class MeleeHitbox : Area3D
 		_duration = Mathf.Max(duration, 0.001f);
 		_elapsed = 0.0f;
 		_unblockable = unblockable;
+		_stagger = stagger;
 		_alreadyHit.Clear();
 		Resize();
 		_open = true;
@@ -139,7 +149,11 @@ public partial class MeleeHitbox : Area3D
 
 			// El Area3D no se desplaza al redimensionar (solo su forma), así que su
 			// posición global es la del atacante: justo lo que necesita el bloqueo.
-			body.GetNodeOrNull<Health>("Health")?.ApplyDamage(_damage, GlobalPosition, _unblockable);
+			body.GetNodeOrNull<Health>("Health")?.ApplyDamage(_damage, GlobalPosition, _unblockable, _stagger);
+
+			Vector3 point = body.GlobalPosition + Vector3.Up * 1.2f
+				- (toBody.IsZeroApprox() ? Vector3.Zero : toBody.Normalized() * 0.35f);
+			EmitSignal(SignalName.HitLanded, body, point);
 		}
 	}
 

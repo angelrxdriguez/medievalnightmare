@@ -1,5 +1,6 @@
 using Godot;
 using MedievalNightmare.Core;
+using MedievalNightmare.Fx;
 
 namespace MedievalNightmare.Player;
 
@@ -34,6 +35,12 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	/// momento el arma, que sale despedida, y en su día el HUD.
 	/// </summary>
 	[Signal] public delegate void GuardBrokenEventHandler();
+
+	/// <summary>
+	/// Un golpe tuyo ha conectado. Lo escuchan la mira (pulso de confirmación) y
+	/// el arma (el mordisco): las piezas que cuentan el impacto, cada una lo suyo.
+	/// </summary>
+	[Signal] public delegate void MeleeHitEventHandler(bool heavy);
 
 	[ExportGroup("Movimiento")]
 	[Export] public float WalkSpeed { get; set; } = 4.5f;
@@ -129,9 +136,19 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	/// <summary>Se cuenta desde que empieza la esquiva: puedes esquivar cada 2 s.</summary>
 	[Export] public float DashCooldown { get; set; } = 2.0f;
 
+	private const string WhooshLightSound = "res://assets/audio/whoosh_light.wav";
+	private const string WhooshHeavySound = "res://assets/audio/whoosh_heavy.wav";
+	private const string HitBoneSound = "res://assets/audio/hit_bone.wav";
+	private const string HitBlockSound = "res://assets/audio/hit_block.wav";
+	private const string HitTakenSound = "res://assets/audio/hit_taken.wav";
+	private const string GuardBreakSound = "res://assets/audio/guard_break.wav";
+	private const string BoltShotSound = "res://assets/audio/bolt_shot.wav";
+	private const string DashSound = "res://assets/audio/dash.wav";
+
 	private Node3D _visual;
 	private Node3D _head;
 	private MeleeHitbox _hitbox;
+	private CameraFeedback _camera;
 	private Health _health;
 	private Inventory _inventory;
 
@@ -158,6 +175,11 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	private Vector3 _dashDirection;
 	private float _reloadTimer;
 	private bool _dead;
+
+	/// <summary>Cuándo paró algo la guardia por última vez. Es lo que separa el
+	/// clang del bloqueo del golpe sordo de encajar: los dos salen de la misma
+	/// señal de daño y solo este instante dice cuál toca.</summary>
+	private ulong _lastBlockMsec;
 
 	/// <summary>
 	/// El arma de la ranura principal, y nada más. El jugador no lleva una lista
@@ -239,8 +261,11 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		_visual = GetNode<Node3D>("Visual");
 		_head = GetNode<Node3D>("Head");
 		_hitbox = GetNode<MeleeHitbox>("Visual/AttackHitbox");
+		_hitbox.HitLanded += OnMeleeHitLanded;
+		_camera = GetNodeOrNull<CameraFeedback>("Head/Camera");
 		_health = GetNode<Health>("Health");
 		_health.Died += OnDied;
+		_health.Damaged += OnDamaged;
 		_inventory = GetNode<Inventory>("Inventory");
 
 		_gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle() * GravityScale;
@@ -449,6 +474,7 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		_dashDirection = direction.Normalized();
 		_dashTimer = DashDuration;
 		_dashCooldownTimer = DashCooldown;
+		Sfx.Play(this, DashSound, -6.0f);
 	}
 
 	private void UpdateSwing(float dt)
@@ -524,7 +550,56 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		}
 
 		EnterPhase(CombatPhase.Active, _heavySwing ? HeavyActive : LightActive);
-		_hitbox.Open(SwingDamage(), _swingWeapon.Range, SwingArc(), _phaseTimer);
+		Sfx.Play(this, _heavySwing ? WhooshHeavySound : WhooshLightSound, -4.0f);
+
+		// Solo el pesado interrumpe al que lo encaja. El ligero deja flinch y nada
+		// más: si también cortara, spamearlo sería la respuesta a todo (M2).
+		_hitbox.Open(SwingDamage(), _swingWeapon.Range, SwingArc(), _phaseTimer, unblockable: false, stagger: _heavySwing);
+	}
+
+	/// <summary>
+	/// El golpe ha conectado: aquí vive todo lo que convierte "le he quitado
+	/// vida" en "le he PEGADO". Parón, coz de cámara, chispas y sonido salen del
+	/// mismo sitio para que no puedan desincronizarse entre sí.
+	///
+	/// Si el barrido alcanza a varios, esto entra una vez por cabeza: dos
+	/// impactos seguidos SUENAN a dos impactos, y el parón se encadena solo.
+	/// </summary>
+	private void OnMeleeHitLanded(Node3D body, Vector3 point)
+	{
+		bool heavy = _heavySwing;
+
+		HitStop.Apply(this, heavy ? 0.09f : 0.05f);
+		Sfx.Play(this, HitBoneSound, heavy ? 2.0f : -1.0f, heavy ? 0.85f : 1.0f);
+		HitSpark.Spawn(this, point);
+
+		// La coz muerde hacia abajo, siguiendo al filo que se clava. El pesado
+		// además abre el campo de visión un instante: es el "uff" del esfuerzo.
+		_camera?.Kick(new Vector3(heavy ? -2.2f : -0.9f, 0.0f, heavy ? 0.8f : 0.35f));
+		if (heavy)
+		{
+			_camera?.PunchFov(2.5f);
+		}
+
+		EmitSignal(SignalName.MeleeHit, heavy);
+	}
+
+	/// <summary>
+	/// Te han dado a ti. El tinte rojo lo lleva la viñeta; aquí va lo que se
+	/// siente en el cuerpo: el temblor y el golpe sordo. Si la guardia acaba de
+	/// parar este mismo golpe, el clang ya ha sonado y el temblor se queda en
+	/// nada: bloquear tiene que SENTIRSE mejor que encajar o no vale para nada.
+	/// </summary>
+	private void OnDamaged(float amount, float remaining)
+	{
+		bool blocked = Time.GetTicksMsec() - _lastBlockMsec < 60;
+
+		if (!blocked)
+		{
+			Sfx.Play(this, HitTakenSound, 2.0f);
+		}
+
+		_camera?.AddTrauma(blocked ? 0.2f : Mathf.Clamp(0.35f + amount / 45.0f, 0.0f, 0.85f));
 	}
 
 	private float RecoveryTime()
@@ -616,6 +691,8 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		Vector3 direction = (-_head.GlobalBasis.Z).Normalized();
 		Vector3 origin = _head.GlobalPosition + direction * ShotOffset;
 
+		Sfx.Play(this, BoltShotSound, -2.0f);
+
 		Projectile bolt = _swingWeapon.Projectile.Instantiate<Projectile>();
 		GetTree().CurrentScene.AddChild(bolt);
 		bolt.Launch(origin, direction, _swingWeapon.ProjectileSpeed, _swingWeapon.Damage);
@@ -651,6 +728,9 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 	/// </summary>
 	private void LoadGuard(float rawDamage)
 	{
+		_lastBlockMsec = Time.GetTicksMsec();
+		Sfx.Play(this, HitBlockSound, -2.0f);
+
 		_guardLoad += rawDamage;
 		_guardWindowTimer = GuardLoadWindow;
 
@@ -663,6 +743,11 @@ public partial class PlayerController : CharacterBody3D, IDamageGuard
 		_guardWindowTimer = 0.0f;
 		_guardBreakTimer = GuardBreakRecovery;
 		_blocking = false;
+
+		// El clang del golpe parado ya ha sonado; esto es la guardia cediendo
+		// DESPUÉS, que es exactamente el orden que cuenta la regla.
+		Sfx.Play(this, GuardBreakSound, 2.0f);
+		_camera?.AddTrauma(0.65f);
 		EmitSignal(SignalName.GuardBroken);
 	}
 

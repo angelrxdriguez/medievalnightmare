@@ -13,6 +13,13 @@ namespace MedievalNightmare.Core;
 public partial class Health : Node
 {
 	[Signal] public delegate void DamagedEventHandler(float amount, float remaining);
+
+	/// <summary>
+	/// Un golpe con la marca de interrumpir ha entrado (no bloqueado y con daño).
+	/// Quien lo escuche decide qué se le corta; aquí solo se avisa.
+	/// </summary>
+	[Signal] public delegate void StaggeredEventHandler();
+
 	[Signal] public delegate void DiedEventHandler();
 
 	[Export] public float Max { get; set; } = 100.0f;
@@ -25,7 +32,7 @@ public partial class Health : Node
 		Current = Max;
 	}
 
-	public void ApplyDamage(float amount, Vector3 origin = default, bool unblockable = false)
+	public void ApplyDamage(float amount, Vector3 origin = default, bool unblockable = false, bool stagger = false)
 	{
 		if (IsDead || amount <= 0.0f)
 		{
@@ -49,5 +56,18 @@ public partial class Health : Node
 		{
 			EmitSignal(SignalName.Died);
 		}
+		else if (stagger)
+		{
+			EmitSignal(SignalName.Staggered);
+		}
+	}
+
+	/// <summary>
+	/// Vida entera otra vez, sin preguntas. Es equipamiento de pruebas —el muñeco
+	/// de la arena, la tecla de curarse—: en el juego la vida no se regenera.
+	/// </summary>
+	public void Restore()
+	{
+		Current = Max;
 	}
 }

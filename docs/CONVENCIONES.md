@@ -52,6 +52,12 @@
 - `tools/` es GDScript de usar y tirar: escenas de desarrollo que no forman
   parte del juego y que no se cargan nunca desde `src/`. Se pueden borrar
   enteras sin romper nada. Ver `ARTE.md` §9.
+- **La arena de combate** (`src/Levels/CombatArena.tscn`) es la sala de pruebas
+  del combate: grande, llana y con luz, con un muñeco que canta los números de
+  daño y teclas de test (F1-F4 armas, K/L esqueletos, J despejar, H curar,
+  R reiniciar). Vive en `src/` y no en `tools/` porque es una escena del motor
+  de juego real, no un script suelto; mientras se itera el combate es la
+  `main_scene`. Los números de daño existen SOLO ahí: el juego no los enseña.
 - **Las animaciones se calculan, no se graban.** No hay `AnimationPlayer` en el
   proyecto y es a propósito: los tiempos de combate los escala cada arma con
   `SpeedScale`, así que una pista grabada se descuadra en cuanto se toca un

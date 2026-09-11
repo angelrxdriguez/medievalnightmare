@@ -146,6 +146,7 @@ public partial class WeaponView : Node3D
 	private float _land;
 	private bool _wasOnFloor = true;
 	private float _blockWeight;
+	private float _hitPunch;
 	private float _breakPunch;
 	private float _brokenWeight;
 	private float _dashWeight;
@@ -169,6 +170,7 @@ public partial class WeaponView : Node3D
 		_lastYaw = _head.Rotation.Y;
 		_lastPitch = _head.Rotation.X;
 		_player.GuardBroken += OnGuardBroken;
+		_player.MeleeHit += OnMeleeHit;
 
 		SwapTo(instant: true);
 	}
@@ -265,6 +267,7 @@ public partial class WeaponView : Node3D
 
 		// El empujón se recoge solo; el brazo caído se queda mientras dure la rotura.
 		_breakPunch = Damp(_breakPunch, 0.0f, GuardBreakRecover, dt);
+		_hitPunch = Damp(_hitPunch, 0.0f, 9.0f, dt);
 		_brokenWeight = Damp(_brokenWeight, _player.IsGuardBroken ? 1.0f : 0.0f, 7.0f, dt);
 
 		bool reloading = _player.ReloadRemaining > 0.0f;
@@ -319,6 +322,13 @@ public partial class WeaponView : Node3D
 		basis = Basis.FromEuler(
 			DegToRad(BrokenGuardDegrees) * _brokenWeight
 			+ DegToRad(GuardBreakKickDegrees) * _breakPunch) * basis;
+
+		// El mordisco del impacto: el arma rebota hacia atrás y hacia arriba al
+		// conectar, como si el filo se hubiera clavado en algo. Sin esto el barrido
+		// atraviesa al enemigo con la misma limpieza que al aire, y esa limpieza es
+		// exactamente lo que se lee como "soso".
+		position += new Vector3(0.0f, 0.025f, 0.07f) * _hitPunch;
+		basis = Basis.FromEuler(new Vector3(Mathf.DegToRad(7.0f) * _hitPunch, 0.0f, 0.0f)) * basis;
 
 		// La esquiva mete el arma contra el pecho: vas de lado, no atacando.
 		position += new Vector3(-0.06f, -0.1f, 0.12f) * _dashWeight;
@@ -489,6 +499,12 @@ public partial class WeaponView : Node3D
 	private void OnGuardBroken()
 	{
 		_breakPunch = 1.0f;
+	}
+
+	/// <summary>Ha conectado un golpe. El pesado muerde más, que para eso apuesta más.</summary>
+	private void OnMeleeHit(bool heavy)
+	{
+		_hitPunch = heavy ? 1.5f : 1.0f;
 	}
 
 	/// <summary>Amortiguación independiente del fotograma. Con lerp puro, a 30 fps va al doble.</summary>

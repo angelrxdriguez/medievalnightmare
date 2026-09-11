@@ -1,0 +1,92 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://src/Levels/CombatArena.cs" id="1_arena"]
+[ext_resource type="Script" path="res://src/Levels/LevelNavigation.cs" id="2_navigation"]
+[ext_resource type="PackedScene" path="res://src/Player/Player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://src/Levels/TrainingDummy.cs" id="4_dummy"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/StoneFloor.tres" id="5_floor"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/StoneWall.tres" id="6_wall"]
+[ext_resource type="Material" path="res://assets/materials/dungeon/StonePillar.tres" id="7_pillar"]
+
+[sub_resource type="Environment" id="Environment_arena"]
+background_mode = 1
+background_color = Color(0.17, 0.18, 0.22, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.68, 0.7, 0.76, 1)
+ambient_light_energy = 1.1
+
+[node name="CombatArena" type="Node3D"]
+script = ExtResource("1_arena")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_arena")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.819152, -0.439385, 0.368688, 0, 0.642788, 0.766044, -0.573576, -0.627507, 0.52654, 0, 12, 0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Geometry" type="CSGCombiner3D" parent="." groups=["navigation_source"]]
+use_collision = true
+collision_layer = 1
+collision_mask = 0
+
+[node name="Floor" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+size = Vector3(44, 0.5, 44)
+material = ExtResource("5_floor")
+
+[node name="WallNorth" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -21.75)
+size = Vector3(44, 4, 0.5)
+material = ExtResource("6_wall")
+
+[node name="WallSouth" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 21.75)
+size = Vector3(44, 4, 0.5)
+material = ExtResource("6_wall")
+
+[node name="WallEast" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.75, 2, 0)
+size = Vector3(0.5, 4, 43)
+material = ExtResource("6_wall")
+
+[node name="WallWest" type="CSGBox3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.75, 2, 0)
+size = Vector3(0.5, 4, 43)
+material = ExtResource("6_wall")
+
+[node name="PillarNE" type="CSGCylinder3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 2, -9)
+radius = 0.45
+height = 4.0
+material = ExtResource("7_pillar")
+
+[node name="PillarNW" type="CSGCylinder3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 2, -9)
+radius = 0.45
+height = 4.0
+material = ExtResource("7_pillar")
+
+[node name="PillarSE" type="CSGCylinder3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 2, 9)
+radius = 0.45
+height = 4.0
+material = ExtResource("7_pillar")
+
+[node name="PillarSW" type="CSGCylinder3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 2, 9)
+radius = 0.45
+height = 4.0
+material = ExtResource("7_pillar")
+
+[node name="Navigation" type="NavigationRegion3D" parent="."]
+script = ExtResource("2_navigation")
+BakeBounds = AABB(-23, -1, -23, 46, 5, 46)
+
+[node name="Dummy" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 4)
+script = ExtResource("4_dummy")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 14)
